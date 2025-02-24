@@ -1,14 +1,14 @@
-# ai/tests/test_strategy_generator.py
+# ai/test_fallback.py
 import sys
 import os
 
 # Add the parent directory to sys.path
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+sys.path.insert(0, os.path.abspath(os.path.dirname(__file__)))
 
-from strategy_generator import StrategyGenerator
+from fallback_generator import FallbackGenerator
 
-def test_strategy_generation():
-    """Test that the strategy generator works end-to-end"""
+def test_fallback():
+    """Test the fallback generator with a single strategy"""
     # Sample data
     wallet_data = {
         "USDC": 5000,
@@ -42,11 +42,11 @@ def test_strategy_generation():
     }
     
     # Create strategy generator
-    generator = StrategyGenerator()
+    generator = FallbackGenerator()
     
-    print("Generating strategy...")
+    print("Testing fallback generator...")
     try:
-        strategy = generator.generate_strategy(wallet_data, market_data, risk_metrics)
+        strategy = generator.generate_strategy(wallet_data, market_data, risk_metrics, risk_level=1)
         
         print("\n===== Generated Strategy =====")
         print(f"Risk Level: {strategy.risk_level}/5")
@@ -65,5 +65,4 @@ def test_strategy_generation():
         raise
 
 if __name__ == "__main__":
-    # Run the test
-    test_strategy_generation()
+    test_fallback()

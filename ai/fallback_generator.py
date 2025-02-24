@@ -1,9 +1,10 @@
-# ai/strategy_generator.py
+# ai/fallback_generator.py
 from typing import Dict, List, Optional
 from dataclasses import dataclass
 from decimal import Decimal
 import os
 import json
+import re
 from dotenv import load_dotenv
 from openai import OpenAI
 
@@ -26,7 +27,9 @@ class Strategy:
     total_expected_apy: Decimal
     risk_factors: List[str]
 
-class StrategyGenerator:
+class FallbackGenerator:
+    """Strategy generator that works with any OpenAI model"""
+    
     def __init__(self):
         self.client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
         
@@ -52,12 +55,7 @@ class StrategyGenerator:
         return json.dumps(context, indent=2)
         
     def _build_prompt(self, context: str, risk_level: Optional[int] = None) -> str:
-        """Build the prompt for strategy generation
-        
-        Args:
-            context: JSON string with wallet and market data
-            risk_level: Optional specific risk level (1-5) to generate
-        """
+        """Build the prompt for strategy generation"""
         risk_instruction = ""
         if risk_level:
             risk_instruction = f"""
@@ -86,7 +84,7 @@ class StrategyGenerator:
         - Include realistic APY estimates
         - Include comprehensive risk assessment
         
-        Return the strategy in the following JSON format:
+        Return ONLY the strategy in the following JSON format with no additional text:
         {{
             "risk_level": 1-5,
             "steps": [
@@ -102,6 +100,8 @@ class StrategyGenerator:
             "total_expected_apy": "number",
             "risk_factors": ["string"]
         }}
+        
+        Ensure your response is ONLY valid JSON with no markdown formatting or additional text.
         """
         
     def generate_strategy(
@@ -111,77 +111,53 @@ class StrategyGenerator:
         risk_metrics: Dict,
         risk_level: Optional[int] = None
     ) -> Strategy:
-        """Generate a single strategy based on the provided data
-        
-        Args:
-            wallet_data: Dictionary with token balances
-            market_data: Dictionary with protocol rates and TVL
-            risk_metrics: Dictionary with risk assessment metrics
-            risk_level: Optional specific risk level (1-5)
-            
-        Returns:
-            Strategy object with the generated strategy
-        """
+        """Generate a single strategy based on the provided data"""
         context = self.prepare_context(wallet_data, market_data, risk_metrics)
         prompt = self._build_prompt(context, risk_level)
         
-        response = self.client.chat.completions.create(
-            model="gpt-3.5-turbo",  # Changed to a model that supports JSON response format
-            messages=[
-                {"role": "system", "content": "You are a DeFi strategy generator for the Scroll network."},
-                {"role": "user", "content": prompt + "\n\nEnsure your response is valid JSON."}
-            ],
-            temperature=0.2,
-            response_format={ "type": "json_object" }
-        )
-        
+        print("Sending request to OpenAI...")
         try:
-            # Try to parse response as JSON
-            strategy_data = json.loads(response.choices[0].message.content)
-            return self._parse_strategy(strategy_data)
-        except json.JSONDecodeError as e:
-            # If parsing fails, try to extract JSON from the response text
+            # Try with gpt-3.5-turbo model
+            response = self.client.chat.completions.create(
+                model="gpt-3.5-turbo",
+                messages=[
+                    {"role": "system", "content": "You are a DeFi strategy generator. Respond only with JSON."},
+                    {"role": "user", "content": prompt}
+                ],
+                temperature=0.2
+            )
+            
+            print("Received response from OpenAI")
             content = response.choices[0].message.content
-            print(f"Warning: Failed to parse response as JSON. Response content: {content[:200]}...")
-            # Try fallback parsing (if the model outputs explanatory text before/after JSON)
-            import re
-            json_match = re.search(r'\{.*\}', content, re.DOTALL)
+            
+            # Try to extract JSON from the response
+            strategy_data = self._extract_json(content)
+            return self._parse_strategy(strategy_data)
+            
+        except Exception as e:
+            print(f"Error with OpenAI API: {e}")
+            raise
+    
+    def _extract_json(self, text: str) -> Dict:
+        """Extract JSON from text response"""
+        # First try direct parsing
+        try:
+            return json.loads(text)
+        except json.JSONDecodeError:
+            # Try to extract JSON using regex
+            json_match = re.search(r'(\{[\s\S]*\})', text)
             if json_match:
                 try:
-                    strategy_data = json.loads(json_match.group(0))
-                    return self._parse_strategy(strategy_data)
+                    return json.loads(json_match.group(0))
                 except json.JSONDecodeError:
-                    raise ValueError(f"Could not extract valid JSON from response: {e}")
+                    # If still failing, try to clean the text
+                    cleaned_text = re.sub(r'```json|```', '', text).strip()
+                    try:
+                        return json.loads(cleaned_text)
+                    except json.JSONDecodeError:
+                        raise ValueError(f"Could not extract valid JSON from response: {text[:200]}...")
             else:
-                raise ValueError(f"Response is not in JSON format: {e}")
-        
-    def generate_strategies_by_risk(
-        self,
-        wallet_data: Dict,
-        market_data: Dict,
-        risk_metrics: Dict
-    ) -> List[Strategy]:
-        """Generate strategies for all risk levels (1-5)
-        
-        Args:
-            wallet_data: Dictionary with token balances
-            market_data: Dictionary with protocol rates and TVL
-            risk_metrics: Dictionary with risk assessment metrics
-            
-        Returns:
-            List of 5 Strategy objects, one for each risk level
-        """
-        strategies = []
-        for risk_level in range(1, 6):
-            strategy = self.generate_strategy(
-                wallet_data, 
-                market_data, 
-                risk_metrics, 
-                risk_level
-            )
-            strategies.append(strategy)
-            
-        return strategies
+                raise ValueError(f"Response does not contain valid JSON: {text[:200]}...")
         
     def _parse_strategy(self, data: Dict) -> Strategy:
         """Parse the LLM response into a Strategy object"""
@@ -203,3 +179,23 @@ class StrategyGenerator:
             total_expected_apy=Decimal(str(data["total_expected_apy"])),
             risk_factors=data["risk_factors"]
         )
+        
+    def generate_strategies_by_risk(
+        self,
+        wallet_data: Dict,
+        market_data: Dict,
+        risk_metrics: Dict
+    ) -> List[Strategy]:
+        """Generate strategies for all risk levels (1-5)"""
+        strategies = []
+        for risk_level in range(1, 6):
+            print(f"Generating strategy for risk level {risk_level}...")
+            strategy = self.generate_strategy(
+                wallet_data, 
+                market_data, 
+                risk_metrics, 
+                risk_level
+            )
+            strategies.append(strategy)
+            
+        return strategies
