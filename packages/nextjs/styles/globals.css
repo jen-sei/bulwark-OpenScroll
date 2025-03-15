@@ -21,7 +21,7 @@
 @font-face {
   font-family: "Inter";
   src: url("/fonts/Inter-Light-BETA.woff") format("woff");
-  font-weight: 300;
+  font-weight: 200;
   font-style: light;
   font-display: swap;
 }

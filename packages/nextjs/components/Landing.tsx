@@ -1,4 +1,5 @@
 import Image from "next/image";
+import FeatureCard from "./FeatureCard";
 
 export default function Home() {
   return (
@@ -48,7 +49,7 @@ export default function Home() {
           />
         </div>
 
-        <div className="flex flex-col my-48 md:my-96">
+        <div className="flex flex-col my-32 md:my-96">
           <h2 className="text-brand-gray text-3xl md:text-6xl font-inter font-normal text-center">
             BULWARK&apos;s AI-driven strategies fortify DeFi, delivering risk-aware allocations, seamless execution, and
             real-time monitoring with unmatched precision and efficiency.
@@ -79,6 +80,54 @@ export default function Home() {
               >
                 try now
               </button>
+            </div>
+          </div>
+        </div>
+
+        <div className="flex flex-col mb-48 md:mb-96 max-w-screen-lg">
+          <h2 className="font-inter font-bold text-4xl md:text-7xl tracking-[-0.05em] bg-gradient bg-clip-text text-transparent">
+            The power of Artificial Intelligence to propel blockchain innovation forward
+          </h2>
+          <p className="font-inter font-light text-xl md:text-2xl text-brand-gray mb-5 md:mb-10">
+            Unleashing AI to transform AiFi, BULWARK’s Agents drive innovation, security, and opportunity to new
+            heights.
+          </p>
+
+          <div className="flex flex-col gap-4 flex-wrap">
+            {/* First row */}
+            <div className="flex flex-col md:flex-row gap-4 items-stretch justify-center">
+              <FeatureCard
+                title="Scroll Mastery"
+                description="Navigate the Scroll ecosystem with unparalleled ease and insight, guided by our AI Agents."
+                imageSrc="/img/features/1.png"
+              />
+
+              <FeatureCard
+                title="Health Factors"
+                description="Monitor your investment with real-time health factors ensuring smarter decisions and better yield opportunities."
+                imageSrc="/img/features/2.png"
+              />
+            </div>
+
+            {/* Second row */}
+            <div className="flex flex-col md:flex-row gap-4">
+              <FeatureCard
+                title="Profit/Loss Tracking"
+                description="Easily track performance with p/l data, giving you a clear picture of your gains and losses over time."
+                imageSrc="/img/features/3.png"
+              />
+
+              <FeatureCard
+                title="Protocol-Specific Indicators"
+                description="Access tailored metrics and insights, including key data points unique to each platform."
+                imageSrc="/img/features/4.png"
+              />
+
+              <FeatureCard
+                title="Real-Time Metrics"
+                description="Stay updated with live data for your positions, including current APYs, and yield generation."
+                imageSrc="/img/features/5.png"
+              />
             </div>
           </div>
         </div>
