@@ -8,8 +8,8 @@ export const metadata = getMetadata({ title: "Bulwark", description: "Smarter de
 
 const ScaffoldEthApp = ({ children }: { children: React.ReactNode }) => {
   return (
-    <html suppressHydrationWarning>
-      <body>
+    <html suppressHydrationWarning lang="en" className="bg-brand-dark">
+      <body className="bg-brand-dark">
         <ThemeProvider enableSystem>
           <ScaffoldEthAppWithProviders>{children}</ScaffoldEthAppWithProviders>
         </ThemeProvider>
