@@ -3,30 +3,22 @@ import Image from "next/image";
 export default function Home() {
   return (
     <div className="min-h-screen">
-      {/* Background abstract design - simplified version */}
-      <div className="absolute inset-0 opacity-30">
-        <div className="absolute top-0 left-0 w-1/3 h-full bg-gradient-to-br from-orange-accent/20 to-transparent transform -rotate-12"></div>
-        <div className="absolute top-0 right-0 w-1/3 h-full bg-gradient-to-bl from-orange-accent/20 to-transparent transform rotate-12"></div>
-      </div>
-
       <div className="container mx-auto px-4 py-12 relative z-10 flex flex-col items-center">
-        {/* Logo and Tagline */}
-        <div className="text-center mb-12">
-          <h1 className="flex items-center justify-center text-6xl md:text-7xl font-light text-brand-cream mb-4">
+        <div className="text-center my-2">
+          <h1 className="flex items-center justify-center text-6xl md:text-7xl font-light text-brand-cream mb-0">
             <Image src="/bulwark.svg" alt="BULWARK" width={160} height={41} className="h-auto w-auto" priority />
           </h1>
-          <p className="text-brand-cream text-2xl md:text-3xl font-light tracking-wider font-post-no-bills">
+          <p className="text-brand-cream text-3xl md:text-6xl font-light tracking-wider font-post-no-bills my-0">
             smarter defi. safer yields.
           </p>
         </div>
 
-        {/* Buttons */}
-        <div className="flex flex-col sm:flex-row gap-4 mb-16">
+        <div className="flex flex-col sm:flex-row gap-4 mt-3 mb-2">
           <button
             onClick={() => {
               /* your click handler here */
             }}
-            className="bg-brand-orange-accent hover:bg-brand-orange-accent/80 text-white font-medium py-3 px-12 rounded-full text-xl transition-all border-2 border-[#D3673A] animate-glow-orange"
+            className="bg-brand-orange-accent hover:bg-brand-orange-accent/80 text-white py-3 px-12 rounded-full text-xl transition-all border-2 border-[#D3673A] animate-glow-orange font-inter font-semibold"
           >
             launch
           </button>
@@ -34,98 +26,59 @@ export default function Home() {
             onClick={() => {
               /* your click handler here */
             }}
-            className="bg-brand-darkgray hover:bg-brand-darkgray/80 text-white font-medium py-3 px-12 rounded-full text-xl transition-all  animate-glow-gray border-2 border-black"
+            className="bg-brand-darkgray hover:bg-brand-darkgray/80 text-white py-3 px-12 rounded-full text-xl transition-all  animate-glow-gray border-2 border-black font-inter font-semibold"
           >
             learn
           </button>
         </div>
 
-        {/* Partners & Technology */}
-        <div className="text-center mb-8">
-          <p className="text-brand-cream text-xl mb-2">Partners & Technology</p>
-          Scroll img
+        <div className="flex flex-col items-center -mb-16">
+          <p className="text-brand-cream text-xl mb-2 font-inter font-light">Partners & Technology</p>
+          <Image src="/img/scroll.png" alt="Scroll" width={58} height={58} className="h-auto w-auto" />
         </div>
 
-        {/* Phone Mockups */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 w-full max-w-5xl">
-          {/* Anchor */}
-          <div className="relative mx-auto">
-            <div className="bg-black rounded-[40px] p-3 border-4 border-dark-gray overflow-hidden w-[280px] h-[560px]">
-              <div className="bg-background h-full rounded-[30px] p-6 flex flex-col">
-                <h2 className="text-orange-accent text-4xl font-medium mb-2">Anchor</h2>
-                <p className="text-brand-cream text-xl leading-tight">
-                  Steady
-                  <br />
-                  growth
-                  <br />
-                  over
-                  <br />
-                  time
-                </p>
-                <div className="flex-grow flex items-center justify-center">
-                  <div className="relative w-40 h-40 rounded-full bg-black flex items-center justify-center border-4 border-white/20">
-                    <span className="text-white text-5xl font-bold">$</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+        <div className="mt-12 w-full max-w-5xl">
+          <Image
+            src="/img/hero.png"
+            alt="Bulwark Trading Strategies"
+            width={1920}
+            height={800}
+            className="w-full h-auto"
+            priority
+          />
+        </div>
 
-          {/* Wildcard */}
-          <div className="relative mx-auto mt-12 md:mt-24">
-            <div className="bg-black rounded-[40px] p-3 border-4 border-dark-gray overflow-hidden w-[280px] h-[560px]">
-              <div className="bg-background h-full rounded-[30px] p-6 flex flex-col">
-                <h2 className="text-orange-accent text-4xl font-medium mb-2">Wildcard</h2>
-                <p className="text-brand-cream text-xl leading-tight">
-                  Risk
-                  <br />
-                  takes
-                  <br />
-                  and
-                  <br />
-                  degens
-                </p>
-                <div className="flex-grow flex items-center justify-center">
-                  <div className="relative w-40 h-40">
-                    <Image
-                      src="/placeholder.svg?height=160&width=160"
-                      alt="Dice"
-                      width={160}
-                      height={160}
-                      className="object-contain"
-                    />
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Zenith */}
-          <div className="relative mx-auto">
-            <div className="bg-black rounded-[40px] p-3 border-4 border-dark-gray overflow-hidden w-[280px] h-[560px]">
-              <div className="bg-background h-full rounded-[30px] p-6 flex flex-col">
-                <h2 className="text-orange-accent text-4xl font-medium mb-2">Zenith</h2>
-                <p className="text-brand-cream text-xl leading-tight">
-                  Optimised
-                  <br />
-                  risk-
-                  <br />
-                  reward
-                  <br />
-                  balance
-                </p>
-                <div className="flex-grow flex items-center justify-center">
-                  <div className="relative w-40 h-40">
-                    <Image
-                      src="/placeholder.svg?height=160&width=160"
-                      alt="Gear"
-                      width={160}
-                      height={160}
-                      className="object-contain"
-                    />
-                  </div>
-                </div>
-              </div>
+        <div className="flex flex-col my-48 md:my-96">
+          <h2 className="text-brand-gray text-3xl md:text-6xl font-inter font-normal text-center">
+            BULWARK&apos;s AI-driven strategies fortify DeFi, delivering risk-aware allocations, seamless execution, and
+            real-time monitoring with unmatched precision and efficiency.
+          </h2>
+          <div className="flex flex-col md:flex-row mt-24 md:mt-48 mb-12 md:mb-24">
+            <Image
+              src="/img/aiagents.png"
+              alt="AI Agents"
+              className="min-w-[45%] w-auto h-auto"
+              width={484}
+              height={428}
+            />
+            <div className="flex flex-col p-4 md:p-12">
+              <h2 className="font-inter font-bold text-2xl md:text-5xl tracking-[-0.05em] bg-gradient bg-clip-text text-transparent">
+                Intelligent Agents to drive the AiFi Blockchain Revolution
+              </h2>
+              <p className="font-inter font-light text-xl md:text-2xl text-brand-gray mb-5 md:mb-10">
+                Discover BULWARK´s suite of AI Agents designed to empower and simplify your DeFi activities. From
+                maximizing trading efficiency with the Automated Trading Agent to ensuring asset security through the
+                External Protocol selection, each tool delivers tangible benefits, making your web3 yield journey
+                seamless and profitable.
+              </p>
+              <button
+                onClick={() => {
+                  /* your click handler here */
+                }}
+                className="self-start bg-brand-darkgray hover:bg-brand-darkgray/80 text-white py-3 px-12 rounded-full text-xl transition-all  animate-glow-gray border-2 border-black font-inter font-semibold"
+              >
+                try now
+              </button>
             </div>
           </div>
         </div>

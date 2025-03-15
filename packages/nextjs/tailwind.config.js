@@ -68,6 +68,7 @@ module.exports = {
       fontFamily: {
         "post-no-bills": ['"Post No Bills Jaffna"', "sans-serif"],
         patriot: ["Patriot", "serif"],
+        inter: ["Inter", "sans-serif"],
       },
       colors: {
         brand: {
@@ -95,6 +96,9 @@ module.exports = {
             "box-shadow": "0 0 30px rgba(62, 62, 64, 0.7)",
           },
         },
+      },
+      backgroundImage: {
+        gradient: "linear-gradient(85.95deg, #F66435 4.76%, #F4EFCA 24.92%)",
       },
     },
   },
