@@ -1,6 +1,6 @@
 export default function AgentsDeployedPanel() {
   return (
-    <div>
+    <div className="font-inter">
       <h2 className="text-2xl font-medium mb-6">Agents Deployed</h2>
 
       <div className="grid grid-cols-3 gap-4 mb-4">

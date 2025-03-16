@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import StrategyCard from "../StrategyCard";
+import Popup from "../ui/Popup";
 import { useAccount } from "wagmi";
 import { useBalances } from "~~/hooks/useBalances";
 import strategiesData from "~~/services/example-strategies-json.json";
@@ -21,6 +22,8 @@ const StrategySelector: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isError, setIsError] = useState(false);
   const [isBalancesZero, setIsBalancesZero] = useState(false);
+  const [isPopupOpen, setIsPopupOpen] = useState(true);
+  const [executedStrategy, setExecutedStrategy] = useState<Strategy | null>(null);
 
   const { address } = useAccount();
   const { balances, isLoading: isBalancesLoading } = useBalances();
@@ -65,12 +68,13 @@ const StrategySelector: React.FC = () => {
     const strategy = strategies.find(s => s.risk_level === selectedStrategy);
     if (strategy) {
       setIsExecuting(true);
-      console.log("Executing strategy:", strategy);
+      setExecutedStrategy(strategy);
+
+      // Simulate execution (replace with actual execution logic)
       setTimeout(() => {
         setIsExecuting(false);
-      }, 3000);
-      // Reset executing state after a delay (or you could handle this in the parent component)
-      setTimeout(() => setIsExecuting(false), 2000);
+        setIsPopupOpen(true);
+      }, 2000);
     }
   };
 
@@ -101,11 +105,11 @@ const StrategySelector: React.FC = () => {
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6 w-full">
-      {strategies.map((strategy, index) => {
-        return (
-          <div className="flex flex-col" key={`strategy-${index}`}>
-            <div className="flex-grow flex-1 h-full">
+    <>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6 w-full">
+        {strategies.map((strategy, index) => {
+          return (
+            <div className="flex flex-col" key={`strategy-${index}`}>
               <StrategyCard
                 riskLevel={strategy.risk_level}
                 steps={strategy.steps}
@@ -116,22 +120,24 @@ const StrategySelector: React.FC = () => {
                 }}
                 isSelected={selectedStrategy === strategy.risk_level}
               />
+              <div className="h-[80px] w-full flex justify-center items-center">
+                {selectedStrategy === strategy.risk_level && (
+                  <button
+                    className="w-48 bg-[#fff9e8] text-black font-medium rounded-md p-3 hover:bg-[#fff0c4] transition-colors"
+                    onClick={handleExecuteStrategy}
+                    disabled={isExecuting}
+                  >
+                    {isExecuting ? "Deploying..." : "Deploy"}
+                  </button>
+                )}
+              </div>
             </div>
-            <div className="h-[80px] w-full flex justify-center items-center">
-              {selectedStrategy === strategy.risk_level && (
-                <button
-                  className="w-48 bg-[#fff9e8] text-black font-medium rounded-md p-3 hover:bg-[#fff0c4] transition-colors"
-                  onClick={handleExecuteStrategy}
-                  disabled={isExecuting}
-                >
-                  {isExecuting ? "Deploying..." : "Deploy"}
-                </button>
-              )}
-            </div>
-          </div>
-        );
-      })}
-    </div>
+          );
+        })}
+      </div>
+
+      <Popup isOpen={isPopupOpen} onClose={() => setIsPopupOpen(false)} />
+    </>
   );
 };
 
