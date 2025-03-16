@@ -18,26 +18,26 @@ const Agents: NextPage = () => {
       <div className="flex-1 flex flex-col">
         <Header title="Portfolio" subtitle="Overview" />
         {/* Content */}
-        <main className="flex-1 p-2 md:p-6 bg-black">
-          <div className="min-h-screen text-[#f4efca]">
-            <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-4 gap-2 md:gap-6">
-              <div className="lg:col-span-3 bg-[#000000]">
-                <PerformanceChart />
-              </div>
+        <main className="flex-1 p-2 md:p-6 bg-black text-[#f4efca]">
+          <div className="max-w-7xl mx-auto flex flex-col md:flex-row gap-2 md:gap-6">
+            <div className="flex-1">
+              <PerformanceChart />
+            </div>
 
-              <AlertsPanel />
+            <AlertsPanel />
+          </div>
 
-              <div className="lg:col-span-1 bg-[#000000] rounded-2xl p-6 shadow-lg">
-                <HealthFactorPanel />
-              </div>
+          <div className="flex flex-col md:flex-row gap-4">
+            <div className="bg-[#000000] rounded-2xl p-6 shadow-lg">
+              <HealthFactorPanel />
+            </div>
 
-              <div className="lg:col-span-1 bg-[#000000] rounded-2xl p-6 shadow-lg">
-                <AgentsDeployedPanel />
-              </div>
+            <div className="bg-[#000000] rounded-2xl p-6 shadow-lg">
+              <AgentsDeployedPanel />
+            </div>
 
-              <div className="lg:col-span-1 bg-[#000000] rounded-2xl p-6 shadow-lg">
-                <TotalValueLockedPanel />
-              </div>
+            <div className="bg-[#000000] rounded-2xl p-6 shadow-lg">
+              <TotalValueLockedPanel />
             </div>
           </div>
         </main>
