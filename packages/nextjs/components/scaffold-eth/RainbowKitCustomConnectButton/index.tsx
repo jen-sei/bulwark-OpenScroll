@@ -3,19 +3,30 @@
 // @refresh reset
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-// import { Balance } from "../Balance";
-// import { AddressInfoDropdown } from "./AddressInfoDropdown";
-// import { AddressQRCodeModal } from "./AddressQRCodeModal";
+import { Balance } from "../Balance";
+import { AddressInfoDropdown } from "./AddressInfoDropdown";
+import { AddressQRCodeModal } from "./AddressQRCodeModal";
 import { WrongNetworkDropdown } from "./WrongNetworkDropdown";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
-// import { Address } from "viem";
+import { Address } from "viem";
 import { useAccount } from "wagmi";
 import { useTargetNetwork } from "~~/hooks/scaffold-eth/useTargetNetwork";
+import { getBlockExplorerAddressLink } from "~~/utils/scaffold-eth/networks";
 
 /**
  * Custom Wagmi Connect Button (watch balance + custom design)
  */
-export const RainbowKitCustomConnectButton = ({ title, secondary = false }: { title: string; secondary?: boolean }) => {
+export const RainbowKitCustomConnectButton = ({
+  title,
+  secondary = false,
+  full = false,
+  networkColor = "#000000",
+}: {
+  title: string;
+  secondary?: boolean;
+  full?: boolean;
+  networkColor?: string;
+}) => {
   // const networkColor = useNetworkColor();
   const { targetNetwork } = useTargetNetwork();
   const router = useRouter();
@@ -64,16 +75,19 @@ export const RainbowKitCustomConnectButton = ({ title, secondary = false }: { ti
     router.push("/agents");
   };
 
+  const classNameBase =
+    "self-start text-white py-3 px-12 rounded-full text-xl transition-all border-2 font-inter font-semibold";
   const className = secondary
-    ? "self-start bg-brand-darkgray hover:bg-brand-darkgray/80 text-white py-3 px-12 rounded-full text-xl transition-all animate-glow-gray border-2 border-black font-inter font-semibold"
-    : "self-start bg-brand-orange-accent hover:bg-brand-orange-accent/80 text-white py-3 px-12 rounded-full text-xl transition-all border-2 border-[#D3673A] animate-glow-orange font-inter font-semibold";
+    ? `${classNameBase} bg-brand-darkgray hover:bg-brand-darkgray/80 animate-glow-gray border-black`
+    : `${classNameBase} bg-brand-orange-accent hover:bg-brand-orange-accent/80 animate-glow-orange border-[#D3673A]`;
+
   return (
     <ConnectButton.Custom>
       {({ account, chain, openConnectModal, mounted }) => {
         const connected = mounted && account && chain;
-        // const blockExplorerAddressLink = account
-        //   ? getBlockExplorerAddressLink(targetNetwork, account.address)
-        //   : undefined;
+        const blockExplorerAddressLink = account
+          ? getBlockExplorerAddressLink(targetNetwork, account.address)
+          : "https://etherscan.io/address/";
 
         return (
           <>
@@ -101,24 +115,27 @@ export const RainbowKitCustomConnectButton = ({ title, secondary = false }: { ti
               }
 
               return (
-                <button onClick={goToApp} className={className}>
-                  {title}
-                </button>
-                // <>
-                //   <div className="flex flex-col items-center mr-1">
-                //     <Balance address={account.address as Address} className="min-h-0 h-auto" />
-                //     <span className="text-xs" style={{ color: networkColor }}>
-                //       {chain.name}
-                //     </span>
-                //   </div>
-                //   <AddressInfoDropdown
-                //     address={account.address as Address}
-                //     displayName={account.displayName}
-                //     ensAvatar={account.ensAvatar}
-                //     blockExplorerAddressLink={blockExplorerAddressLink}
-                //   />
-                //   <AddressQRCodeModal address={account.address as Address} modalId="qrcode-modal" />
-                // </>
+                <>
+                  {full ? (
+                    <>
+                      <div className="flex flex-col items-center mr-1">
+                        <Balance address={account.address as Address} className="min-h-0 h-auto" />
+                        <span className="text-xs text-white">{chain.name}</span>
+                      </div>
+                      <AddressInfoDropdown
+                        address={account.address as Address}
+                        displayName={account.displayName}
+                        ensAvatar={account.ensAvatar}
+                        blockExplorerAddressLink={blockExplorerAddressLink}
+                      />
+                      <AddressQRCodeModal address={account.address as Address} modalId="qrcode-modal" />
+                    </>
+                  ) : (
+                    <button onClick={goToApp} className={className}>
+                      {title}
+                    </button>
+                  )}
+                </>
               );
             })()}
           </>

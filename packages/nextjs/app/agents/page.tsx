@@ -2,44 +2,20 @@
 
 import Image from "next/image";
 import { NextPage } from "next";
+// import { useAccount } from "wagmi";
+import Header from "~~/components/Header";
 import Sidebar from "~~/components/Sidebar";
 
 const Agents: NextPage = () => {
+  // const { isConnected, isDisconnected, isConnecting } = useAccount();
+
   return (
     <div className="flex h-screen bg-black text-white">
       <Sidebar />
 
       {/* Main Content */}
       <div className="flex-1 flex flex-col">
-        {/* Header */}
-        <header className="h-[84px] border-b border-neutral-800 flex items-center justify-between px-6">
-          <div className="flex items-center text-gray-400 text-lg">
-            <Image src="/icons/star.svg" alt="Star" width={20} height={20} className="h-5 w-5 mr-2 text-neutral-500" />
-            <span className="text-neutral-500">Agents /</span>
-            <span className="ml-2 text-white">Overview</span>
-          </div>
-
-          <div className="flex items-center gap-4">
-            <div className="relative">
-              <Image src="/icons/bell.png" alt="Bell" width={20} height={20} className="h-5 w-5 text-neutral-400" />
-              <span className="absolute -top-1 -right-1 w-4 h-4 bg-orange-500 rounded-full flex items-center justify-center text-[10px]">
-                1
-              </span>
-            </div>
-            <div className="flex items-center gap-2 bg-neutral-800/80 rounded-md px-3 py-1.5">
-              <div className="w-8 h-8 rounded-md overflow-hidden">
-                <Image
-                  src="/placeholder.svg?height=32&width=32"
-                  alt="Avatar"
-                  width={32}
-                  height={32}
-                  className="h-full w-full object-cover"
-                />
-              </div>
-              <span className="text-sm font-mono">0x12a3...6d4d</span>
-            </div>
-          </div>
-        </header>
+        <Header title="Agents" subtitle="Overview" />
 
         {/* Content */}
         <main className="flex-1 p-6 bg-neutral-900">
