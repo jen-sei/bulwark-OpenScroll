@@ -42,6 +42,14 @@
   font-display: swap;
 }
 
+@font-face {
+  font-family: "Sztos";
+  src: url("/fonts/Sztos-RegularCondensedItalic.otf") format("opentype");
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
 :root,
 [data-theme] {
   background: oklch(var(--b2));
