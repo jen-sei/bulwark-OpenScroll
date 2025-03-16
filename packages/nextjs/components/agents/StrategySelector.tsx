@@ -22,7 +22,7 @@ const StrategySelector: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isError, setIsError] = useState(false);
   const [isBalancesZero, setIsBalancesZero] = useState(false);
-  const [isPopupOpen, setIsPopupOpen] = useState(true);
+  const [isPopupOpen, setIsPopupOpen] = useState(false);
   const [executedStrategy, setExecutedStrategy] = useState<Strategy | null>(null);
 
   const { address } = useAccount();
