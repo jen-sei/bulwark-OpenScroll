@@ -5,7 +5,15 @@ from decimal import Decimal
 import json
 import web3
 from web3 import Web3
-from web3.middleware import geth_poa_middleware
+# Handle different versions of web3.py
+try:
+    from web3.middleware import geth_poa_middleware
+except ImportError:
+    # For newer versions of web3.py
+    from web3.middleware.geth import geth_poa_middleware
+except:
+    # Fallback if middleware can't be imported
+    geth_poa_middleware = None
 
 # ABI imports (we'll create these files)
 from .abis.pool_data_provider_abi import POOL_DATA_PROVIDER_ABI
