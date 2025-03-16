@@ -15,7 +15,7 @@ const menuItems: MenuItem[] = [
   { icon: "/icons/square.svg", label: "Portfolio", path: "/portfolio" },
   { icon: "/icons/circle.svg", label: "Ask", path: "/ask" },
   { icon: "/icons/triangle.svg", label: "Governance", path: "/governance" },
-  { icon: "/icons/chevron-right.svg", label: "Developers", path: "/developers" },
+  { icon: "/icons/arrow.svg", label: "Developers", path: "/developers" },
 ];
 
 const Sidebar = () => {
