@@ -58,8 +58,48 @@ module.exports = {
   },
   theme: {
     extend: {
-      boxShadow: { center: "0 0 12px -2px rgb(0 0 0 / 0.05)" },
-      animation: { "pulse-fast": "pulse 1s cubic-bezier(0.4, 0, 0.6, 1) infinite" },
+      boxShadow: { center: "0 0 7px -2px rgb(0 0 0 / 0.05)" },
+      animation: {
+        "pulse-fast": "pulse 1s cubic-bezier(0.4, 0, 0.6, 1) infinite",
+        glow: "glow 2s ease-in-out infinite",
+        "glow-orange": "glow-orange 2s ease-in-out infinite",
+        "glow-gray": "glow-gray 2s ease-in-out infinite",
+      },
+      fontFamily: {
+        "post-no-bills": ['"Post No Bills Jaffna"', "sans-serif"],
+        patriot: ["Patriot", "serif"],
+        inter: ["Inter", "sans-serif"],
+      },
+      colors: {
+        brand: {
+          dark: "#29292B", // Dark gray/black
+          gray: "#C9C7BA", // Light gray
+          darkgray: "#3E3E40", // Dark gray
+          cream: "#F4EFCA", // Cream
+          "orange-accent": "#F66435", // Orange accent
+        },
+      },
+      keyframes: {
+        "glow-orange": {
+          "0%, 100%": {
+            "box-shadow": "0 0 20px rgba(246, 100, 53, 0.5)",
+          },
+          "50%": {
+            "box-shadow": "0 0 30px rgba(246, 100, 53, 0.7)",
+          },
+        },
+        "glow-gray": {
+          "0%, 100%": {
+            "box-shadow": "0 0 20px rgba(62, 62, 64, 0.5)", // using brand-darkgray color
+          },
+          "50%": {
+            "box-shadow": "0 0 30px rgba(62, 62, 64, 0.7)",
+          },
+        },
+      },
+      backgroundImage: {
+        gradient: "linear-gradient(85.95deg, #F66435 4.76%, #F4EFCA 24.92%)",
+      },
     },
   },
 };
