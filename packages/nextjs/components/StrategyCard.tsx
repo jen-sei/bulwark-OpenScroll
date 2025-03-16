@@ -45,7 +45,8 @@ const getDescription = (riskLevel: number) => {
 };
 
 const StrategyCard: React.FC<StrategyCardProps> = ({ riskLevel, steps, apy, explanation, onClick, isSelected }) => {
-  const className = `flex-grow relative rounded-xl bg-cover bg-left md:bg-center ${getImgSrc(riskLevel)} ${isSelected ? "border-4 border-brand-cream" : ""}`;
+  const className = `flex-grow relative rounded-xl bg-cover bg-left md:bg-center border-4 hover:cursor-pointer
+   ${getImgSrc(riskLevel)} ${isSelected ? "border-brand-cream" : "border-black"}`;
   return (
     <div className={className} onClick={onClick}>
       <div className="absolute inset-0 bg-brand-background/50 rounded-xl"></div>
@@ -66,7 +67,7 @@ const StrategyCard: React.FC<StrategyCardProps> = ({ riskLevel, steps, apy, expl
           ))}
         </ul>
 
-        <p className="text-xl text-gray-300 mb-6 font-inter font-bold flex-grow">{explanation}</p>
+        <p className="text-sm text-gray-300 mb-6 font-inter font-bold flex-grow">{explanation}</p>
 
         <div className="text-5xl font-bold text-white italic mb-2 text-center">{apy} APY</div>
       </div>

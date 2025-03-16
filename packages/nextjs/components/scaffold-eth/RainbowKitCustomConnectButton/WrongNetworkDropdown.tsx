@@ -9,14 +9,14 @@ export const WrongNetworkDropdown = () => {
     <div className="dropdown dropdown-end mr-2">
       <button
         tabIndex={0}
-        className="bg-brand-orange-accent hover:bg-brand-orange-accent/80 text-white py-3 px-12 rounded-full text-xl transition-all border-2 border-[#D3673A] animate-glow-orange font-inter font-semibold gap-1 flex flex-row items-center"
+        className="bg-brand-orange-accent hover:bg-brand-orange-accent/80 text-white py-2 px-12 rounded-full transition-all border-2 border-[#D3673A] animate-glow-orange font-inter font-semibold gap-1 flex flex-row items-center"
       >
         <span>Wrong network</span>
         <ChevronDownIcon className="h-6 w-4 ml-2 sm:ml-0" />
       </button>
       <ul
         tabIndex={0}
-        className="dropdown-content menu p-2 mt-1 shadow-center shadow-accent bg-base-200 rounded-box gap-1"
+        className="dropdown-content menu p-2 mt-1 shadow-center shadow-accent bg-brand-gray text-black rounded-box gap-1 z-50"
       >
         <NetworkOptions />
         <li>

@@ -118,10 +118,11 @@ export const RainbowKitCustomConnectButton = ({
                 <>
                   {full ? (
                     <>
-                      <div className="flex flex-col items-center mr-1">
+                      {/* <div className="flex flex-col items-center mr-1">
                         <Balance address={account.address as Address} className="min-h-0 h-auto" />
                         <span className="text-xs text-white">{chain.name}</span>
-                      </div>
+                      </div> */}
+
                       <AddressInfoDropdown
                         address={account.address as Address}
                         displayName={account.displayName}
