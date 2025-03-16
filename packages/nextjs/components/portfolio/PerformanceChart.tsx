@@ -22,21 +22,20 @@ const formatLargeNumber = (value: number) => `${(value / 1_000_000).toFixed(1)}M
 
 export default function PerformanceChart() {
   return (
-    <div className="border border-brand-cream rounded-xl p-2 md:p-4 border-opacity-20 bg-brand-background">
-      <h2 className="text-2xl font-medium">Overall Performance</h2>
+    <div className="border border-brand-cream rounded-xl p-2 md:p-4 border-opacity-20 bg-brand-background font-inter">
+      <h2 className="text-2xl font-medium ml-2">Overall Performance</h2>
       <ResponsiveContainer width="100%" height={400}>
         <ComposedChart data={data} margin={{ top: 20, right: 30, left: 20, bottom: 20 }}>
           <defs>
-            {/* Vertical Line Pattern */}
             <pattern id="verticalLines" patternUnits="userSpaceOnUse" width="5" height="10">
               <line x1="5" y1="0" x2="5" y2="10" stroke="orange" strokeWidth="2" />
             </pattern>
 
             <linearGradient id="fadeGradient" x1="0" x2="0" y1="0" y2="1">
-              <stop offset="0%" stopColor="white" stopOpacity="1" /> {/* Fully visible at top */}
-              <stop offset="30%" stopColor="white" stopOpacity="0.6" /> {/* Start fading */}
-              <stop offset="50%" stopColor="white" stopOpacity="0.3" /> {/* More fading */}
-              <stop offset="100%" stopColor="white" stopOpacity="0" /> {/* Fully transparent at bottom */}
+              <stop offset="0%" stopColor="white" stopOpacity="1" />
+              <stop offset="30%" stopColor="white" stopOpacity="0.6" />
+              <stop offset="50%" stopColor="white" stopOpacity="0.3" />
+              <stop offset="100%" stopColor="white" stopOpacity="0" />
             </linearGradient>
 
             <mask id="fadeMask">
