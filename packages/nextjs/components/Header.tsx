@@ -14,7 +14,7 @@ interface HeaderProps {
 const Header: React.FC<HeaderProps> = ({ title, subtitle }) => {
   const router = useRouter();
   const pathname = usePathname();
-  const { isConnected, isDisconnected } = useAccount();
+  const { isConnected } = useAccount();
 
   useEffect(() => {
     if (!isConnected) {
