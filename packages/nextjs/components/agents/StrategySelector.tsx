@@ -8,19 +8,43 @@ import strategiesData from "~~/services/example-strategies-json.json";
 import { useStrategiesStore } from "~~/services/store/strategies";
 import { Strategy } from "~~/types/strategy";
 
+const selectedStrategies = [
+  strategiesData.strategies[0],
+  strategiesData.strategies[2],
+  strategiesData.strategies[4],
+] as unknown as Strategy[];
+
 const StrategySelector: React.FC = () => {
   const [selectedStrategy, setSelectedStrategy] = useState<number | null>(null);
   const [isExecuting, setIsExecuting] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   const { address } = useAccount();
-  const { balances } = useBalances();
+  const { balances, isLoading: isBalancesLoading } = useBalances();
+  const strategies = useStrategiesStore(state => state.strategies);
+  const generateStrategies = useStrategiesStore(state => state.generateStrategies);
+  const setStrategies = useStrategiesStore(state => state.setStrategies);
 
   useEffect(() => {
-    if (address) {
-      generateStrategies(address, {
-        USDC: "1000.30",
-      });
-    }
+    const fetchStrategies = async () => {
+      try {
+        if (address) {
+          setIsLoading(true);
+          const success = await generateStrategies(address, {
+            USDC: "1000.30",
+          });
+          if (!success) {
+            setStrategies(selectedStrategies);
+          }
+        }
+      } catch (error) {
+        console.error("Error generating strategies:", error);
+        setStrategies(selectedStrategies);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchStrategies();
   }, [address]);
 
   // useEffect(() => {
@@ -28,14 +52,6 @@ const StrategySelector: React.FC = () => {
   //     generateStrategies(address, balances);
   //   }
   // }, [address, balances]);
-
-  const selectedStrategies = [
-    strategiesData.strategies[0],
-    strategiesData.strategies[2],
-    strategiesData.strategies[4],
-  ] as unknown as Strategy[];
-
-  const { strategies, generateStrategies } = useStrategiesStore();
 
   const handleExecuteStrategy = () => {
     const strategy = strategies.find(s => s.risk_level === selectedStrategy);
@@ -50,8 +66,18 @@ const StrategySelector: React.FC = () => {
     }
   };
 
+  if (isLoading) {
+    return (
+      <div className="animate-pulse flex-grow flex flex-col md:flex-row gap-2 items-center justify-center p-6">
+        <div className="h-48 md:h-3/5 bg-neutral-800 rounded w-3/4 md:w-1/4 mb-2"></div>
+        <div className="hidden md:block h-3/5 bg-neutral-800 rounded w-3/4 md:w-1/4 mb-2"></div>
+        <div className="hidden md:block h-3/5 bg-neutral-800 rounded w-3/4 md:w-1/4 mb-2"></div>
+      </div>
+    );
+  }
+
   return (
-    <div className="flex flex-col md:flex-row gap-4 flex-grow">
+    <div className="flex flex-col md:flex-row gap-4 flex-grow mt-6">
       {strategies.map((strategy, index) => {
         return (
           <div className="flex-grow flex flex-col" key={`strategy-${index}`}>

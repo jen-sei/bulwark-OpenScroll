@@ -5,13 +5,16 @@ import { Strategy } from "~~/types/strategy";
 interface StrategiesState {
   strategies: Strategy[];
   setStrategies: (strategies: Strategy[]) => void;
-  generateStrategies: (address: string, balances: TokenBalances) => Promise<void>;
+  generateStrategies: (address: string, balances: TokenBalances) => Promise<boolean>;
 }
 
 export const useStrategiesStore = create<StrategiesState>(set => ({
   strategies: [],
 
-  setStrategies: (strategies: Strategy[]) => set({ strategies }),
+  setStrategies: (strategies: Strategy[]) => {
+    console.log("Setting strategies:", strategies);
+    set({ strategies });
+  },
 
   generateStrategies: async (address, balances) => {
     try {
@@ -32,8 +35,10 @@ export const useStrategiesStore = create<StrategiesState>(set => ({
 
       const data = await response.json();
       set({ strategies: data });
+      return true;
     } catch (error) {
       console.error("Error generating strategies:", error);
+      return false;
     }
   },
 }));
