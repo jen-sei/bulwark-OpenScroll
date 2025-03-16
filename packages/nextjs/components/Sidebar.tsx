@@ -68,7 +68,7 @@ const Sidebar = () => {
           ${isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"}
         `}
       >
-        <div className="w-full h-full md:w-64 md:min-h-screen bg-black border-r border-neutral-800 flex flex-col sticky top-0">
+        <div className="w-full h-full md:w-64 md:min-h-screen bg-brand-background border-r border-neutral-800 flex flex-col sticky top-0">
           {/* Logo */}
           <div className="flex justify-end md:justify-start p-4 mb-6 mt-2">
             <Link href="/" className="block">
@@ -147,7 +147,7 @@ const Sidebar = () => {
       {/* Overlay - Only visible on mobile when menu is open */}
       {isMobileMenuOpen && (
         <div
-          className="md:hidden fixed inset-0 bg-black bg-opacity-50 z-10"
+          className="md:hidden fixed inset-0 bg-brand-background bg-opacity-50 z-10"
           onClick={() => setIsMobileMenuOpen(false)}
         ></div>
       )}

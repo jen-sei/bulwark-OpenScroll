@@ -77,6 +77,7 @@ module.exports = {
           darkgray: "#3E3E40", // Dark gray
           cream: "#F4EFCA", // Cream
           "orange-accent": "#F66435", // Orange accent
+          background: "#121212",
         },
       },
       keyframes: {
