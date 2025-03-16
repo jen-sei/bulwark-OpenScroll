@@ -38,8 +38,15 @@ class AaveService:
     def __init__(self):
         # Initialize Web3 connection
         self.w3 = Web3(Web3.HTTPProvider(self.SCROLL_RPC_URL))
-        self.w3.middleware_onion.inject(geth_poa_middleware, layer=0)
-        
+    
+        # Only inject middleware if available
+        if geth_poa_middleware is not None:
+            try:
+                self.w3.middleware_onion.inject(geth_poa_middleware, layer=0)
+                print("POA middleware injected successfully")
+            except Exception as e:
+                print(f"Warning: Failed to inject POA middleware: {e}. Continuing without it.")
+            
         # Test connection
         if not self.w3.is_connected():
             print(f"Failed to connect to {self.SCROLL_RPC_URL}")
