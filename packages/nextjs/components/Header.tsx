@@ -15,9 +15,6 @@ const Header: React.FC<HeaderProps> = ({ title = "Overview", subtitle = "Agents"
   const router = useRouter();
   const { isConnected, isDisconnected } = useAccount();
 
-  console.log("isConnected", isConnected);
-  console.log("isDisconnected", isDisconnected);
-
   useEffect(() => {
     if (!isConnected) {
       console.log("Wallet disconnected, redirecting to home page");

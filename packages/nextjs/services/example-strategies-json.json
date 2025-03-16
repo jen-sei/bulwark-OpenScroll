@@ -1,0 +1,175 @@
+{
+  "strategies": [
+    {
+      "risk_level": 1,
+      "steps": [
+        {
+          "protocol": "AAVE",
+          "action": "supply",
+          "token": "USDC",
+          "amount": 5000,
+          "expected_apy": 3.75
+        }
+      ],
+      "explanation": "This conservative strategy focuses on supplying USDC to AAVE to earn a stable yield. USDC is a stablecoin with minimal price volatility, making this the safest approach with predictable returns.",
+      "total_expected_apy": 3.75,
+      "risk_factors": ["Smart contract risk", "Stable market conditions", "Low liquidation risk"]
+    },
+    {
+      "risk_level": 2,
+      "steps": [
+        {
+          "protocol": "AAVE",
+          "action": "supply",
+          "token": "USDC",
+          "amount": 4000,
+          "expected_apy": 3.75
+        },
+        {
+          "protocol": "AAVE",
+          "action": "supply",
+          "token": "ETH",
+          "amount": 1.2,
+          "expected_apy": 1.82
+        }
+      ],
+      "explanation": "This moderately conservative strategy involves supplying both USDC and ETH to AAVE. While most assets remain in stable USDC, a small ETH position adds potential for higher returns with slightly increased volatility risk.",
+      "total_expected_apy": 3.45,
+      "risk_factors": ["ETH price volatility", "Smart contract risk", "Moderate market exposure"]
+    },
+    {
+      "risk_level": 3,
+      "steps": [
+        {
+          "protocol": "AAVE",
+          "action": "supply",
+          "token": "USDC",
+          "amount": 5000,
+          "expected_apy": 3.75
+        },
+        {
+          "protocol": "AAVE",
+          "action": "borrow",
+          "token": "ETH",
+          "amount": 1.0,
+          "expected_apy": 2.1
+        },
+        {
+          "protocol": "AAVE",
+          "action": "supply",
+          "token": "ETH",
+          "amount": 1.0,
+          "expected_apy": 1.82
+        }
+      ],
+      "explanation": "This balanced strategy involves supplying USDC as collateral, borrowing ETH against it, and then supplying that ETH back to earn additional yield. This creates a leveraged position while maintaining a reasonable health factor.",
+      "total_expected_apy": 5.47,
+      "risk_factors": [
+        "Leverage risk",
+        "ETH price volatility",
+        "Interest rate fluctuations",
+        "Moderate liquidation risk"
+      ]
+    },
+    {
+      "risk_level": 4,
+      "steps": [
+        {
+          "protocol": "AAVE",
+          "action": "supply",
+          "token": "ETH",
+          "amount": 2.5,
+          "expected_apy": 1.82
+        },
+        {
+          "protocol": "AAVE",
+          "action": "borrow",
+          "token": "USDC",
+          "amount": 2000,
+          "expected_apy": 4.5
+        },
+        {
+          "protocol": "AAVE",
+          "action": "supply",
+          "token": "USDC",
+          "amount": 2000,
+          "expected_apy": 3.75
+        }
+      ],
+      "explanation": "This moderately aggressive strategy uses ETH as collateral to borrow USDC, which is then supplied back to earn additional yield. This creates a higher leverage position with increased returns but also higher risk.",
+      "total_expected_apy": 6.57,
+      "risk_factors": [
+        "High leverage risk",
+        "ETH price volatility",
+        "Higher liquidation risk",
+        "Interest rate fluctuations"
+      ]
+    },
+    {
+      "risk_level": 5,
+      "steps": [
+        {
+          "protocol": "AAVE",
+          "action": "supply",
+          "token": "ETH",
+          "amount": 2.5,
+          "expected_apy": 1.82
+        },
+        {
+          "protocol": "AAVE",
+          "action": "borrow",
+          "token": "USDC",
+          "amount": 3000,
+          "expected_apy": 4.5
+        },
+        {
+          "protocol": "AAVE",
+          "action": "supply",
+          "token": "ETH",
+          "amount": 1.5,
+          "expected_apy": 1.82
+        },
+        {
+          "protocol": "AAVE",
+          "action": "borrow",
+          "token": "USDC",
+          "amount": 1500,
+          "expected_apy": 4.5
+        },
+        {
+          "protocol": "AAVE",
+          "action": "supply",
+          "token": "USDC",
+          "amount": 4500,
+          "expected_apy": 3.75
+        }
+      ],
+      "explanation": "This aggressive strategy maximizes yield through recursive leveraging. ETH is supplied as initial collateral, then multiple cycles of borrowing and supplying create maximum leverage. This strategy operates near minimum health factor for maximum returns.",
+      "total_expected_apy": 8.89,
+      "risk_factors": [
+        "Maximum leverage risk",
+        "High liquidation risk",
+        "High ETH price volatility exposure",
+        "Interest rate risk",
+        "Complex position management"
+      ]
+    }
+  ],
+  "wallet": {
+    "address": "0x1234567890123456789012345678901234567890",
+    "balances": {
+      "USDC": 5000,
+      "ETH": 2.5,
+      "SRC": 250
+    },
+    "total_value_usd": 11250
+  },
+  "market_data": {
+    "token_prices": {
+      "USDC": 1.0,
+      "ETH": 2500.0,
+      "SRC": 5.0
+    },
+    "market_conditions": "stable"
+  }
+}

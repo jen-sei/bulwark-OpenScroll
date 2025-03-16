@@ -60,7 +60,7 @@ const Sidebar = () => {
                 href={item.path}
                 className={`flex items-center p-3 rounded-md cursor-pointer transition-colors ${
                   isActive
-                    ? "bg-gradient-to-r from-orange-600/80 to-orange-500/50 text-white"
+                    ? "bg-gradient-to-r from-[#F66435] to-[#29292B] text-white"
                     : "text-neutral-400 hover:bg-neutral-800/50"
                 }`}
               >
