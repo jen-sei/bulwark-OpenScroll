@@ -1,23 +1,26 @@
 # api/main.py
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Any
 import sys
 import os
 import json
+from decimal import Decimal
 
 # Add the parent directory to sys.path
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from ai.strategy_generator import StrategyGenerator
+from ai.services.aave_service import AaveService
+from ai.services.wallet_service import WalletService
 
 app = FastAPI(title="Bulwark API", description="AI-powered DeFi strategies for Scroll network")
 
 # Enable CORS
 app.add_middleware(
     CORSMiddleware,
-        allow_origins=[
+    allow_origins=[
         "https://bulwark-scroll.vercel.app",
         "http://localhost:3000",     # Standard Next.js port
         "http://127.0.0.1:3000",     # Alternative localhost
@@ -30,12 +33,19 @@ app.add_middleware(
     allow_headers=["*"],
 )   
 
-# Initialize strategy generator
-generator = StrategyGenerator()
+# Create service dependencies
+def get_strategy_generator():
+    return StrategyGenerator()
+
+def get_aave_service():
+    return AaveService()
+
+def get_wallet_service():
+    return WalletService()
 
 class WalletRequest(BaseModel):
     address: str
-    balances: Dict[str, float]
+    balances: Optional[Dict[str, float]] = None
 
 class GenerateStrategiesResponse(BaseModel):
     strategies: List[Dict]
@@ -46,56 +56,102 @@ class GenerateStrategiesResponse(BaseModel):
 def read_root():
     return {"message": "Welcome to Bulwark API", "version": "1.0"}
 
+@app.get("/api/market-data")
+def get_market_data(aave_service: AaveService = Depends(get_aave_service)):
+    """Get current market data from AAVE"""
+    try:
+        market_data = aave_service.get_market_data()
+        return {
+            "success": True,
+            "data": market_data
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error fetching market data: {str(e)}")
+
+@app.get("/api/wallet/{address}")
+def analyze_wallet(address: str, wallet_service: WalletService = Depends(get_wallet_service)):
+    """Analyze wallet contents"""
+    try:
+        wallet_data = wallet_service.analyze_wallet(address)
+        return {
+            "success": True,
+            "data": wallet_data
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error analyzing wallet: {str(e)}")
+
 @app.post("/api/generate-strategies", response_model=GenerateStrategiesResponse)
-def generate_strategies(request: WalletRequest):
+def generate_strategies(
+    request: WalletRequest,
+    strategy_generator: StrategyGenerator = Depends(get_strategy_generator),
+    aave_service: AaveService = Depends(get_aave_service),
+    wallet_service: WalletService = Depends(get_wallet_service)
+):
+    """Generate optimized DeFi strategies based on wallet holdings"""
     try:
         # Log request
         print(f"Generating strategies for wallet: {request.address}")
-        print(f"Balances: {request.balances}")
         
-        # Convert any float balances to strings and then to Decimal for safety
+        # Get balances either from request or fetch them if not provided
+        wallet_balances = request.balances
+        if not wallet_balances:
+            print("No balances provided in request, fetching from blockchain...")
+            wallet_data = wallet_service.analyze_wallet(request.address)
+            wallet_balances = wallet_data.get("balances", {})
+        
+        print(f"Balances: {wallet_balances}")
+        
+        # Convert any float balances to the format required by strategy generator
         sanitized_balances = {}
-        for token, amount in request.balances.items():
+        for token, amount in wallet_balances.items():
             try:
-                # Keep the balance as is - no conversion to Decimal here
-                # This avoids the issue with Decimal conversion
                 sanitized_balances[token] = amount
             except Exception as e:
                 print(f"Error converting balance for {token}: {e}")
-                sanitized_balances[token] = 0  # Default to 0 if conversion fails
+                sanitized_balances[token] = 0
         
-        # For a real implementation, you would fetch market data from external sources
-        # For the hackathon, we'll use hardcoded data
-        market_data = {
-            "rates": {
-                "AAVE": {
-                    "supply_apy": {
-                        "USDC": 3.75,
-                        "ETH": 1.82,
-                        "SRC": 2.5
-                    },
-                    "borrow_apy": {
-                        "USDC": 4.5,
-                        "ETH": 2.1,
-                        "SRC": 3.0
+        # Fetch real market data from AAVE
+        try:
+            market_data = aave_service.get_market_data()
+            print("Using real market data from AAVE")
+        except Exception as e:
+            print(f"Error fetching market data from AAVE: {e}, using fallback data")
+            # Fallback to hardcoded data if AAVE fetch fails
+            market_data = {
+                "rates": {
+                    "AAVE": {
+                        "supply_apy": {
+                            "USDC": 3.75,
+                            "ETH": 1.82,
+                            "SRC": 2.5
+                        },
+                        "borrow_apy": {
+                            "USDC": 4.5,
+                            "ETH": 2.1,
+                            "SRC": 3.0
+                        }
                     }
-                }
-            },
-            "tvl": {
-                "AAVE": 80320000
-            },
-            "conditions": "stable"
-        }
+                },
+                "tvl": {
+                    "AAVE": 80320000
+                },
+                "conditions": "stable"
+            }
         
-        # In a real implementation, calculate risk metrics based on current positions
-        risk_metrics = {
-            "health_factor": 1.8,
-            "liquidation_threshold": 0.85,
-            "current_ratio": 1.5
-        }
+        # Get real risk metrics or use fallback
+        try:
+            risk_metrics = aave_service.get_user_risk_metrics(request.address)
+            print("Using real risk metrics from AAVE")
+        except Exception as e:
+            print(f"Error fetching risk metrics from AAVE: {e}, using fallback data")
+            risk_metrics = {
+                "health_factor": 1.8,
+                "liquidation_threshold": 0.85,
+                "current_ratio": 1.5
+            }
         
         # Generate strategies
-        strategies_json = generator.generate_strategies_json(
+        strategies_json = strategy_generator.generate_strategies_json(
             sanitized_balances,
             market_data,
             risk_metrics
@@ -108,6 +164,11 @@ def generate_strategies(request: WalletRequest):
         import traceback
         traceback.print_exc()
         raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/health")
+def health_check():
+    """API health check endpoint"""
+    return {"status": "ok"}
 
 if __name__ == "__main__":
     import uvicorn

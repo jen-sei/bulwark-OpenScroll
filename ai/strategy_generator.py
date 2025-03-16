@@ -31,13 +31,40 @@ class StrategyGenerator:
     def __init__(self):
         self.client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
         
+        # Token name mapping (from AAVE service to frontend display)
+        self.token_mapping = {
+            "WETH": "ETH",   # Map WETH to ETH for user-friendly display
+            "SCR": "SRC",    # In case the API returns SCR instead of SRC
+            # Add other mappings as needed
+        }
+        
+        # Reverse mapping for converting back
+        self.reverse_token_mapping = {v: k for k, v in self.token_mapping.items()}
+        
     def prepare_context(
         self,
         wallet_data: Dict,
         market_data: Dict,
         risk_metrics: Dict
     ) -> str:
-        """Prepare context for LLM prompt"""
+        """Prepare context for LLM prompt with token name mapping"""
+        
+        # Map AAVE token names to frontend display names
+        # For rates in market data
+        mapped_rates = {}
+        if "rates" in market_data and "AAVE" in market_data["rates"]:
+            aave_rates = market_data["rates"]["AAVE"]
+            mapped_rates["AAVE"] = {}
+            
+            for rate_type in ["supply_apy", "borrow_apy"]:
+                if rate_type in aave_rates:
+                    mapped_rates["AAVE"][rate_type] = {}
+                    for token, value in aave_rates[rate_type].items():
+                        # Map token names like WETH -> ETH for the prompt
+                        display_name = self.token_mapping.get(token, token)
+                        mapped_rates["AAVE"][rate_type][display_name] = value
+        
+        # Create the final context
         context = {
             "wallet": {
                 "balances": wallet_data,
@@ -45,7 +72,7 @@ class StrategyGenerator:
                 "risk_metrics": risk_metrics
             },
             "market": {
-                "apy_rates": market_data.get("rates"),
+                "apy_rates": mapped_rates or market_data.get("rates"),
                 "tvl": market_data.get("tvl"),
                 "conditions": market_data.get("conditions")
             }
@@ -206,10 +233,14 @@ class StrategyGenerator:
                 amount_str = str(step["amount"]).replace(',', '')
                 apy_str = str(step["expected_apy"]).replace(',', '')
                 
+                # Map the display token names (ETH) back to blockchain names (WETH)
+                token = step["token"]
+                blockchain_token = self.reverse_token_mapping.get(token, token)
+                
                 steps.append(StrategyStep(
                     protocol=step["protocol"],
                     action=step["action"],
-                    token=step["token"],
+                    token=blockchain_token,  # Use the blockchain token name
                     amount=Decimal(amount_str),
                     expected_apy=Decimal(apy_str)
                 ))
