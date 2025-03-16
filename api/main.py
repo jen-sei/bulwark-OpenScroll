@@ -17,7 +17,7 @@ app = FastAPI(title="Bulwark API", description="AI-powered DeFi strategies for S
 # Enable CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # For production, restrict this to your frontend domain
+    allow_origins=["https://bulwark-scroll.vercel.app"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
