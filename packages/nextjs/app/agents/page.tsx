@@ -27,7 +27,7 @@ const Agents: NextPage = () => {
   };
 
   return (
-    <div className="flex h-screen bg-black text-white">
+    <div className="flex min-h-screen bg-black text-white">
       <Sidebar />
 
       <div className="flex-1 flex flex-col">

@@ -2,17 +2,18 @@
 
 import React, { useEffect } from "react";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { RainbowKitCustomConnectButton } from "./scaffold-eth/RainbowKitCustomConnectButton";
 import { useAccount } from "wagmi";
 
 interface HeaderProps {
-  title?: string;
-  subtitle?: string;
+  title: string;
+  subtitle: string;
 }
 
-const Header: React.FC<HeaderProps> = ({ title = "Overview", subtitle = "Agents" }) => {
+const Header: React.FC<HeaderProps> = ({ title, subtitle }) => {
   const router = useRouter();
+  const pathname = usePathname();
   const { isConnected, isDisconnected } = useAccount();
 
   useEffect(() => {
@@ -22,12 +23,29 @@ const Header: React.FC<HeaderProps> = ({ title = "Overview", subtitle = "Agents"
     }
   }, [isConnected, router]);
 
+  // Map routes to their corresponding icons
+  const routeIcons: Record<string, string> = {
+    "/agents": "/icons/star.svg",
+    "/portfolio": "/icons/square.svg",
+    "/ask": "/icons/circle.svg",
+    "/governance": "/icons/triangle.svg",
+    "/developers": "/icons/arrow.svg",
+    // Add fallback for unknown routes
+    default: "/icons/star.svg",
+  };
+
+  // Get the icon for the current route, or use default if not found
+  const currentIcon = routeIcons[pathname] || routeIcons.default;
+
   return (
-    <header className="h-[84px] border-b border-neutral-800 flex items-center justify-between px-6">
-      <div className="flex items-center text-gray-400 text-lg">
-        <Image src="/icons/star.svg" alt="Star" width={20} height={20} className="h-5 w-5 mr-2 text-neutral-500" />
-        <span className="text-neutral-500">{subtitle} /</span>
-        <span className="ml-2 text-white">{title}</span>
+    <header className=" border-b border-neutral-800 flex flex-col md:flex-row items-center justify-end md:justify-between px-2 md:px-6 py-6">
+      <div className="flex items-center text-gray-400 text-lg pb-8 md:pb-0">
+        <Image src={currentIcon} alt={title} width={20} height={20} className="h-5 w-5 mr-2 text-neutral-500" />
+        <div className="flex flex-row">
+          <span className="text-neutral">{title} </span>
+          <span className="text-neutral mx-2"> / </span>
+          <span className="text-neutral-400">{subtitle}</span>
+        </div>
       </div>
 
       <div className="flex items-center gap-4">

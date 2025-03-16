@@ -6,7 +6,7 @@ import Sidebar from "~~/components/Sidebar";
 
 const Agents: NextPage = () => {
   return (
-    <div className="flex h-screen bg-black text-white">
+    <div className="flex min-h-screen bg-black text-white">
       <Sidebar />
 
       {/* Main Content */}
