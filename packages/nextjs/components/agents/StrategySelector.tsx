@@ -55,10 +55,10 @@ const StrategySelector: React.FC = () => {
         setIsLoading(false);
       }
     };
-    // fetchStrategies();
+    fetchStrategies();
 
-    setStrategies(selectedStrategies);
-    setIsLoading(false);
+    // setStrategies(selectedStrategies);
+    // setIsLoading(false);
   }, [address, balances, isBalancesLoading]);
 
   const handleExecuteStrategy = () => {
