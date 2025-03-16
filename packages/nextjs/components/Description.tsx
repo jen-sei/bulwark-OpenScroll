@@ -30,12 +30,6 @@ const Description = () => {
             selection, each tool delivers tangible benefits, making your web3 yield journey seamless and profitable.
           </p>
           <RainbowKitCustomConnectButton title="try now" secondary />
-          {/* <button
-           
-            className="self-start bg-brand-darkgray hover:bg-brand-darkgray/80 text-white py-3 px-12 rounded-full text-xl transition-all animate-glow-gray border-2 border-black font-inter font-semibold"
-          >
-            try now
-          </button> */}
         </div>
       </div>
     </div>

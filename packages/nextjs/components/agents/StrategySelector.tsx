@@ -26,7 +26,7 @@ const StrategySelector: React.FC = () => {
   const { balances, isLoading: isBalancesLoading } = useBalances();
   const strategies = useStrategiesStore(state => state.strategies);
   const generateStrategies = useStrategiesStore(state => state.generateStrategies);
-  // const setStrategies = useStrategiesStore(state => state.setStrategies);
+  const setStrategies = useStrategiesStore(state => state.setStrategies);
 
   useEffect(() => {
     const fetchStrategies = async () => {
@@ -43,7 +43,6 @@ const StrategySelector: React.FC = () => {
           //   // ETH: "0.01",
           // });
           if (!success) {
-            // setStrategies(selectedStrategies);
             setIsError(true);
           } else {
             setIsError(false);
@@ -51,13 +50,15 @@ const StrategySelector: React.FC = () => {
         }
       } catch (error) {
         console.error("Error generating strategies:", error);
-        // setStrategies(selectedStrategies);
         setIsError(true);
       } finally {
         setIsLoading(false);
       }
     };
-    fetchStrategies();
+    // fetchStrategies();
+
+    setStrategies(selectedStrategies);
+    setIsLoading(false);
   }, [address, balances, isBalancesLoading]);
 
   const handleExecuteStrategy = () => {
@@ -100,20 +101,22 @@ const StrategySelector: React.FC = () => {
   }
 
   return (
-    <div className="flex flex-col md:flex-row gap-4 flex-grow mt-6">
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6 w-full">
       {strategies.map((strategy, index) => {
         return (
-          <div className="flex-grow flex flex-col" key={`strategy-${index}`}>
-            <StrategyCard
-              riskLevel={strategy.risk_level}
-              steps={strategy.steps}
-              apy={`${strategy.total_expected_apy.toFixed(1)}%`}
-              explanation={strategy.explanation}
-              onClick={() => {
-                setSelectedStrategy(strategy.risk_level);
-              }}
-              isSelected={selectedStrategy === strategy.risk_level}
-            />
+          <div className="flex flex-col" key={`strategy-${index}`}>
+            <div className="flex-grow flex-1 h-full">
+              <StrategyCard
+                riskLevel={strategy.risk_level}
+                steps={strategy.steps}
+                apy={`${strategy.total_expected_apy.toFixed(1)}%`}
+                explanation={strategy.explanation}
+                onClick={() => {
+                  setSelectedStrategy(strategy.risk_level);
+                }}
+                isSelected={selectedStrategy === strategy.risk_level}
+              />
+            </div>
             <div className="h-[80px] w-full flex justify-center items-center">
               {selectedStrategy === strategy.risk_level && (
                 <button

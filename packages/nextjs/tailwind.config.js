@@ -69,6 +69,7 @@ module.exports = {
         "post-no-bills": ['"Post No Bills Jaffna"', "sans-serif"],
         patriot: ["Patriot", "serif"],
         inter: ["Inter", "sans-serif"],
+        sztos: ["Sztos", "sans-serif"],
       },
       colors: {
         brand: {

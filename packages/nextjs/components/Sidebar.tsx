@@ -9,14 +9,21 @@ interface MenuItem {
   icon: string;
   label: string;
   path: string;
+  isExternal?: boolean;
+  isDisabled?: boolean;
 }
 
 const menuItems: MenuItem[] = [
   { icon: "/icons/star.svg", label: "Agents", path: "/agents" },
   { icon: "/icons/square.svg", label: "Portfolio", path: "/portfolio" },
   { icon: "/icons/circle.svg", label: "Ask", path: "/ask" },
-  { icon: "/icons/triangle.svg", label: "Governance", path: "/governance" },
-  { icon: "/icons/arrow.svg", label: "Developers", path: "/developers" },
+  { icon: "/icons/triangle.svg", label: "Governance", path: "/governance", isDisabled: true },
+  {
+    icon: "/icons/arrow.svg",
+    label: "Developers",
+    path: "https://github.com/MihRazvan/bulwark_scroll",
+    isExternal: true,
+  },
 ];
 
 const Sidebar = () => {
@@ -44,24 +51,6 @@ const Sidebar = () => {
           />
         </button>
       </div>
-
-      {/* Mobile Logo - Only visible on small screens when menu is closed */}
-      {/* <div className="md:hidden fixed top-4 left-1/2 transform -translate-x-1/2 z-20">
-        {!isMobileMenuOpen && (
-          <Link href="/">
-            <Image
-              src="/logo.png"
-              alt="BULWARK"
-              width={120}
-              height={32}
-              className="h-auto w-auto dark:invert"
-              priority
-            />
-          </Link>
-        )}
-      </div> */}
-
-      {/* Sidebar - Hidden on mobile by default, shown when menu is open */}
       <div
         className={`
           fixed inset-0 z-20 transition-transform duration-300 ease-in-out md:relative md:translate-x-0 md:h-screen
@@ -69,7 +58,6 @@ const Sidebar = () => {
         `}
       >
         <div className="w-full h-full md:w-64 md:min-h-screen bg-brand-background border-r border-neutral-800 flex flex-col sticky top-0">
-          {/* Logo */}
           <div className="flex justify-end md:justify-start p-4 mb-6 mt-2">
             <Link href="/" className="block">
               <Image
@@ -81,14 +69,8 @@ const Sidebar = () => {
                 priority
               />
             </Link>
-
-            {/* Close button - Only visible on mobile */}
-            {/* <button onClick={toggleMobileMenu} className="md:hidden p-2">
-              <Image src="/icons/close.svg" alt="Close" width={24} height={24} className="h-6 w-6" />
-            </button> */}
           </div>
 
-          {/* Search */}
           <div className="px-4 mb-6">
             <div className="relative">
               <input
@@ -109,42 +91,70 @@ const Sidebar = () => {
           <div className="px-4 pt-2 pb-6 border-b border-neutral-800">
             <div className="text-xs font-semibold text-neutral-500 mb-4">MENU</div>
 
-            {/* Menu items */}
             <div className="space-y-1">
               {menuItems.map(item => {
-                const isActive = pathname === item.path;
+                const isActive = !item.isExternal && !item.isDisabled && pathname === item.path;
+
+                const menuItemContent = (
+                  <>
+                    <Image
+                      src={item.icon}
+                      alt={item.label}
+                      width={20}
+                      height={20}
+                      className={`h-5 w-5 mr-3 ${item.isDisabled ? "opacity-40" : ""}`}
+                    />
+                    <span className="font-medium">{item.label}</span>
+                  </>
+                );
+
+                if (item.isDisabled) {
+                  return (
+                    <div
+                      key={item.path}
+                      className="flex items-center p-3 rounded-md text-neutral-600 opacity-60 cursor-default"
+                    >
+                      {menuItemContent}
+                    </div>
+                  );
+                }
+
+                if (item.isExternal) {
+                  return (
+                    <a
+                      key={item.path}
+                      href={item.path}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                      className="flex items-center p-3 rounded-md cursor-pointer transition-colors text-neutral-400 hover:bg-neutral-800/50"
+                    >
+                      {menuItemContent}
+                    </a>
+                  );
+                }
 
                 return (
                   <Link
                     key={item.path}
                     href={item.path}
-                    onClick={() => setIsMobileMenuOpen(false)} // Close menu when item is clicked on mobile
+                    onClick={() => setIsMobileMenuOpen(false)}
                     className={`flex items-center p-3 rounded-md cursor-pointer transition-colors ${
                       isActive
                         ? "bg-gradient-to-r from-[#F66435] to-[#29292B] text-white"
                         : "text-neutral-400 hover:bg-neutral-800/50"
                     }`}
                   >
-                    <Image
-                      src={item.icon}
-                      alt={item.label}
-                      width={20}
-                      height={20}
-                      className={`h-5 w-5 mr-3 text-white`}
-                    />
-                    <span className="font-medium">{item.label}</span>
+                    {menuItemContent}
                   </Link>
                 );
               })}
             </div>
           </div>
-
-          {/* Add a flex-grow div to push content to the top */}
           <div className="flex-grow"></div>
         </div>
       </div>
 
-      {/* Overlay - Only visible on mobile when menu is open */}
       {isMobileMenuOpen && (
         <div
           className="md:hidden fixed inset-0 bg-brand-background bg-opacity-50 z-10"
