@@ -48,7 +48,7 @@ const StrategyCard: React.FC<StrategyCardProps> = ({ riskLevel, steps, apy, expl
   const className = `flex-grow relative rounded-xl bg-cover bg-left md:bg-center ${getImgSrc(riskLevel)} ${isSelected ? "border-4 border-brand-cream" : ""}`;
   return (
     <div className={className} onClick={onClick}>
-      <div className="absolute inset-0 bg-black/50 rounded-xl"></div>
+      <div className="absolute inset-0 bg-brand-background/50 rounded-xl"></div>
 
       <div className="relative p-6 pb-0 h-full flex flex-col">
         <h2 className="font-inter font-bold text-2xl md:text-4xl tracking-[-0.05em] bg-gradient bg-clip-text text-transparent">

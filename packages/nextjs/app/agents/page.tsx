@@ -33,7 +33,7 @@ const Agents: NextPage = () => {
       <div className="flex-1 flex flex-col">
         <Header title="Agents" subtitle="Overview" />
 
-        <main className="flex-1 p-6 bg-neutral-900 flex flex-col">
+        <main className="flex-1 p-6 bg-black flex flex-col">
           <div className="flex flex-col md:flex-row gap-4 flex-grow">
             {selectedStrategies.map((strategy, index) => {
               return (
