@@ -20,6 +20,7 @@ class StrategyStep:
 
 @dataclass
 class Strategy:
+    name: str  # Added name field for Anchor, Zenith, Wildcard
     risk_level: int
     steps: List[StrategyStep]
     explanation: str
@@ -51,44 +52,57 @@ class StrategyGenerator:
         }
         return json.dumps(context, indent=2)
         
-    def _build_prompt(self, context: str, risk_level: Optional[int] = None) -> str:
+    def _build_prompt(self, context: str, strategy_type: str) -> str:
         """Build the prompt for strategy generation
         
         Args:
             context: JSON string with wallet and market data
-            risk_level: Optional specific risk level (1-5) to generate
+            strategy_type: "Anchor" (conservative), "Zenith" (balanced), or "Wildcard" (aggressive)
         """
-        risk_instruction = ""
-        if risk_level:
-            risk_instruction = f"""
-            Generate a DeFi strategy with risk level {risk_level} (on a scale of 1-5 where 1 is most conservative and 5 is most aggressive).
-            """
-        else:
-            risk_instruction = """
-            Generate a DeFi strategy that optimizes returns while managing risk.
-            """
-            
+        # Strategy descriptions and risk levels based on frontend
+        strategy_descriptions = {
+            "Anchor": {
+                "description": "Conservative strategy focused on steady growth over time. Should use USDC primarily for minimal volatility.",
+                "risk_level": 1,
+                "target_apy": "around 3.8%"
+            },
+            "Zenith": {
+                "description": "Balanced performance strategy that creates moderate leverage while maintaining reasonable health factor.",
+                "risk_level": 3,
+                "target_apy": "around 5.5%"
+            },
+            "Wildcard": {
+                "description": "Aggressive strategy for risk-takers that maximizes yield through recursive leveraging. Operates near minimum health factor.",
+                "risk_level": 5,
+                "target_apy": "around 8.9%"
+            }
+        }
+        
+        # Get the specific strategy details
+        strategy_info = strategy_descriptions.get(strategy_type, strategy_descriptions["Anchor"])
+        
         return f"""You are an AI-powered DeFi strategy generator for the Scroll network. Based on the following wallet and market data:
         {context}
         
-        {risk_instruction} The strategy should be executable on AAVE.
+        Generate a {strategy_type} strategy ({strategy_info["description"]})
+        This should be a risk level {strategy_info["risk_level"]} strategy with an expected APY of {strategy_info["target_apy"]}.
+        The strategy should be executable on AAVE.
         
-        Risk Level Guidelines:
-        - Level 1: Conservative (focus on stable assets like USDC, minimizing risk)
-        - Level 2: Moderately Conservative (mostly USDC with small ETH position)
-        - Level 3: Balanced (diversified approach with moderate risk)
-        - Level 4: Moderately Aggressive (higher ETH allocation, some leverage)
-        - Level 5: Aggressive (maximum yield focus, higher leverage)
+        Strategy Guidelines:
+        - Anchor: Conservative strategy focusing on USDC supply with minimal risk exposure
+        - Zenith: Balanced strategy involving USDC as collateral, borrowing ETH against it, and then supplying that ETH back 
+        - Wildcard: Aggressive strategy that maximizes yield through recursive leveraging with multiple cycles of borrowing and supplying
         
         Requirements:
-        - Consider current market conditions and wallet holdings
+        - Use all available tokens in the wallet (USDC, ETH, SRC)
         - Provide clear step-by-step actions
         - Include realistic APY estimates
         - Include comprehensive risk assessment
         
         Return the strategy in the following JSON format:
         {{
-            "risk_level": 1-5,
+            "name": "{strategy_type}",
+            "risk_level": {strategy_info["risk_level"]},
             "steps": [
                 {{
                     "protocol": "string",
@@ -109,24 +123,24 @@ class StrategyGenerator:
         wallet_data: Dict,
         market_data: Dict,
         risk_metrics: Dict,
-        risk_level: Optional[int] = None
+        strategy_type: str
     ) -> Strategy:
-        """Generate a single strategy based on the provided data
+        """Generate a strategy based on the provided data
         
         Args:
             wallet_data: Dictionary with token balances
             market_data: Dictionary with protocol rates and TVL
             risk_metrics: Dictionary with risk assessment metrics
-            risk_level: Optional specific risk level (1-5)
+            strategy_type: "Anchor" (conservative), "Zenith" (balanced), or "Wildcard" (aggressive)
             
         Returns:
             Strategy object with the generated strategy
         """
         context = self.prepare_context(wallet_data, market_data, risk_metrics)
-        prompt = self._build_prompt(context, risk_level)
+        prompt = self._build_prompt(context, strategy_type)
         
         response = self.client.chat.completions.create(
-            model="gpt-3.5-turbo",  # Changed to a model that supports JSON response format
+            model="gpt-3.5-turbo",
             messages=[
                 {"role": "system", "content": "You are a DeFi strategy generator for the Scroll network."},
                 {"role": "user", "content": prompt + "\n\nEnsure your response is valid JSON."}
@@ -155,13 +169,13 @@ class StrategyGenerator:
             else:
                 raise ValueError(f"Response is not in JSON format: {e}")
         
-    def generate_strategies_by_risk(
+    def generate_all_strategies(
         self,
         wallet_data: Dict,
         market_data: Dict,
         risk_metrics: Dict
     ) -> List[Strategy]:
-        """Generate strategies for all risk levels (1-5)
+        """Generate all three strategies (Anchor, Zenith, Wildcard)
         
         Args:
             wallet_data: Dictionary with token balances
@@ -169,15 +183,15 @@ class StrategyGenerator:
             risk_metrics: Dictionary with risk assessment metrics
             
         Returns:
-            List of 5 Strategy objects, one for each risk level
+            List of 3 Strategy objects, one for each strategy type
         """
         strategies = []
-        for risk_level in range(1, 6):
+        for strategy_type in ["Anchor", "Zenith", "Wildcard"]:
             strategy = self.generate_strategy(
                 wallet_data, 
                 market_data, 
                 risk_metrics, 
-                risk_level
+                strategy_type
             )
             strategies.append(strategy)
             
@@ -197,9 +211,54 @@ class StrategyGenerator:
         ]
         
         return Strategy(
+            name=data["name"],
             risk_level=data["risk_level"],
             steps=steps,
             explanation=data["explanation"],
             total_expected_apy=Decimal(str(data["total_expected_apy"])),
             risk_factors=data["risk_factors"]
         )
+        
+    def generate_strategies_json(
+        self,
+        wallet_data: Dict,
+        market_data: Dict,
+        risk_metrics: Dict
+    ) -> Dict:
+        """Generate all strategies and return as JSON-serializable dict
+        
+        This is useful for API responses
+        """
+        strategies = self.generate_all_strategies(wallet_data, market_data, risk_metrics)
+        
+        # Convert to JSON-serializable format
+        result = {
+            "strategies": [
+                {
+                    "name": strategy.name,
+                    "risk_level": strategy.risk_level,
+                    "steps": [
+                        {
+                            "protocol": step.protocol,
+                            "action": step.action,
+                            "token": step.token,
+                            "amount": float(step.amount),
+                            "expected_apy": float(step.expected_apy)
+                        }
+                        for step in strategy.steps
+                    ],
+                    "explanation": strategy.explanation,
+                    "total_expected_apy": float(strategy.total_expected_apy),
+                    "risk_factors": strategy.risk_factors
+                }
+                for strategy in strategies
+            ],
+            "wallet": {
+                "balances": wallet_data
+            },
+            "market_data": {
+                "conditions": market_data.get("conditions", "stable")
+            }
+        }
+        
+        return result
