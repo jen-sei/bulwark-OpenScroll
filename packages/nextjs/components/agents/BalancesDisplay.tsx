@@ -1,11 +1,7 @@
 "use client";
 
 import { useBalances } from "~~/hooks/useBalances";
-
-const formattedAmount = (amount: string | undefined) => {
-  if (!amount) return "0.00";
-  return parseFloat(amount).toFixed(5);
-};
+import { formattedAmount } from "~~/utils/formattedAmount";
 
 const BalancesDisplay = () => {
   const { balances, isLoading, error } = useBalances();

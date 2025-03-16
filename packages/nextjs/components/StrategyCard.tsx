@@ -1,6 +1,7 @@
 import React from "react";
 import Image from "next/image";
 import { StrategyStep } from "~~/types/strategy";
+import { formattedAmount } from "~~/utils/formattedAmount";
 
 interface StrategyCardProps {
   riskLevel: number;
@@ -83,7 +84,7 @@ const StrategyCard: React.FC<StrategyCardProps> = ({ riskLevel, steps, apy, expl
           {steps.map((step, index) => (
             <li key={index} className="flex items-center text-gray-300 text-sm">
               <span className="h-1.5 w-1.5 rounded-full bg-gray-300 mr-3"></span>
-              {step.action} {step.amount} {step.token} on {step.protocol}
+              {step.action} {formattedAmount(step.amount)} {step.token} on {step.protocol}
             </li>
           ))}
         </ul>
