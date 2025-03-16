@@ -17,11 +17,18 @@ app = FastAPI(title="Bulwark API", description="AI-powered DeFi strategies for S
 # Enable CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["https://bulwark-scroll.vercel.app"],
+        allow_origins=[
+        "https://bulwark-scroll.vercel.app",
+        "http://localhost:3000",     # Standard Next.js port
+        "http://127.0.0.1:3000",     # Alternative localhost
+        "http://localhost:8000",     # In case they're using this port
+        "http://localhost:5173",     # Vite default port
+        "http://127.0.0.1:5173"      # Alternative Vite localhost
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
-)
+)   
 
 # Initialize strategy generator
 generator = StrategyGenerator()
