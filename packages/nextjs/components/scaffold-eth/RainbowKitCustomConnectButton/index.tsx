@@ -76,7 +76,7 @@ export const RainbowKitCustomConnectButton = ({
   };
 
   const classNameBase =
-    "self-start text-white py-3 px-12 rounded-full text-xl transition-all border-2 font-inter font-semibold";
+    "self-start text-white py-1 px-12 rounded-full text-xl transition-all border-2 font-inter font-semibold";
   const className = secondary
     ? `${classNameBase} bg-brand-darkgray hover:bg-brand-darkgray/80 animate-glow-gray border-black`
     : `${classNameBase} bg-brand-orange-accent hover:bg-brand-orange-accent/80 animate-glow-orange border-[#D3673A]`;

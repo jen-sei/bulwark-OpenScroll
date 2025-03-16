@@ -4,7 +4,7 @@ import { useBalances } from "~~/hooks/useBalances";
 
 const formattedAmount = (amount: string | undefined) => {
   if (!amount) return "0.00";
-  return parseFloat(amount).toFixed(2);
+  return parseFloat(amount).toFixed(5);
 };
 
 const BalancesDisplay = () => {

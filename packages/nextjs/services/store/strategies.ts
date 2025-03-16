@@ -34,7 +34,7 @@ export const useStrategiesStore = create<StrategiesState>(set => ({
       }
 
       const data = await response.json();
-      set({ strategies: data });
+      set({ strategies: data.strategies });
       return true;
     } catch (error) {
       console.error("Error generating strategies:", error);

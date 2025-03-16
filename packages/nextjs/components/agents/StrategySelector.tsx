@@ -7,6 +7,7 @@ import { useBalances } from "~~/hooks/useBalances";
 import strategiesData from "~~/services/example-strategies-json.json";
 import { useStrategiesStore } from "~~/services/store/strategies";
 import { Strategy } from "~~/types/strategy";
+import areAllBalancesZero from "~~/utils/areAllBalancesZero";
 
 const selectedStrategies = [
   strategiesData.strategies[0],
@@ -18,40 +19,46 @@ const StrategySelector: React.FC = () => {
   const [selectedStrategy, setSelectedStrategy] = useState<number | null>(null);
   const [isExecuting, setIsExecuting] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [isError, setIsError] = useState(false);
+  const [isBalancesZero, setIsBalancesZero] = useState(false);
 
   const { address } = useAccount();
   const { balances, isLoading: isBalancesLoading } = useBalances();
   const strategies = useStrategiesStore(state => state.strategies);
   const generateStrategies = useStrategiesStore(state => state.generateStrategies);
-  const setStrategies = useStrategiesStore(state => state.setStrategies);
+  // const setStrategies = useStrategiesStore(state => state.setStrategies);
 
   useEffect(() => {
     const fetchStrategies = async () => {
       try {
-        if (address) {
+        if (address && !isBalancesLoading && balances) {
+          if (areAllBalancesZero(balances)) {
+            setIsBalancesZero(true);
+            return;
+          }
           setIsLoading(true);
-          const success = await generateStrategies(address, {
-            USDC: "1000.30",
-          });
+          const success = await generateStrategies(address, balances);
+          // const success = await generateStrategies(address, {
+          //   USDC: "1000",
+          //   // ETH: "0.01",
+          // });
           if (!success) {
-            setStrategies(selectedStrategies);
+            // setStrategies(selectedStrategies);
+            setIsError(true);
+          } else {
+            setIsError(false);
           }
         }
       } catch (error) {
         console.error("Error generating strategies:", error);
-        setStrategies(selectedStrategies);
+        // setStrategies(selectedStrategies);
+        setIsError(true);
       } finally {
         setIsLoading(false);
       }
     };
     fetchStrategies();
-  }, [address]);
-
-  // useEffect(() => {
-  //   if (address) {
-  //     generateStrategies(address, balances);
-  //   }
-  // }, [address, balances]);
+  }, [address, balances, isBalancesLoading]);
 
   const handleExecuteStrategy = () => {
     const strategy = strategies.find(s => s.risk_level === selectedStrategy);
@@ -72,6 +79,22 @@ const StrategySelector: React.FC = () => {
         <div className="h-48 md:h-3/5 bg-neutral-800 rounded w-3/4 md:w-1/4 mb-2"></div>
         <div className="hidden md:block h-3/5 bg-neutral-800 rounded w-3/4 md:w-1/4 mb-2"></div>
         <div className="hidden md:block h-3/5 bg-neutral-800 rounded w-3/4 md:w-1/4 mb-2"></div>
+      </div>
+    );
+  }
+
+  if (isError) {
+    return (
+      <div className="text-red-700 font-inter font-light text-2xl my-6 text-center">
+        <p>Error generating strategies</p>
+      </div>
+    );
+  }
+
+  if (isBalancesZero) {
+    return (
+      <div className="text-red-700 font-inter font-light text-2xl my-6 text-center">
+        <p>No funds for allocation</p>
       </div>
     );
   }
@@ -98,7 +121,7 @@ const StrategySelector: React.FC = () => {
                   onClick={handleExecuteStrategy}
                   disabled={isExecuting}
                 >
-                  {isExecuting ? "Executing..." : "Execute"}
+                  {isExecuting ? "Deploying..." : "Deploy"}
                 </button>
               )}
             </div>
