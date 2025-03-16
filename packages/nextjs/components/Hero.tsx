@@ -1,5 +1,6 @@
 import React from "react";
 import Image from "next/image";
+import { RainbowKitCustomConnectButton } from "./scaffold-eth";
 
 const Hero = () => {
   return (
@@ -14,20 +15,8 @@ const Hero = () => {
       </div>
 
       <div className="flex flex-col sm:flex-row gap-4 mt-3 mb-2">
-        <button
-          onClick={() => {
-            /* your click handler here */
-          }}
-          className="bg-brand-orange-accent hover:bg-brand-orange-accent/80 text-white py-3 px-12 rounded-full text-xl transition-all border-2 border-[#D3673A] animate-glow-orange font-inter font-semibold"
-        >
-          launch
-        </button>
-        <button
-          onClick={() => {
-            /* your click handler here */
-          }}
-          className="bg-brand-darkgray hover:bg-brand-darkgray/80 text-white py-3 px-12 rounded-full text-xl transition-all animate-glow-gray border-2 border-black font-inter font-semibold"
-        >
+        <RainbowKitCustomConnectButton title="launch" />
+        <button className="bg-brand-darkgray hover:bg-brand-darkgray/80 text-white py-3 px-12 rounded-full text-xl transition-all animate-glow-gray border-2 border-black font-inter font-semibold">
           learn
         </button>
       </div>

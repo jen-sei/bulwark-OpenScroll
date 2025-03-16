@@ -1,5 +1,6 @@
 import React from "react";
 import Image from "next/image";
+import { RainbowKitCustomConnectButton } from "./scaffold-eth/RainbowKitCustomConnectButton";
 
 const Description = () => {
   return (
@@ -28,14 +29,13 @@ const Description = () => {
             trading efficiency with the Automated Trading Agent to ensuring asset security through the External Protocol
             selection, each tool delivers tangible benefits, making your web3 yield journey seamless and profitable.
           </p>
-          <button
-            onClick={() => {
-              /* your click handler here */
-            }}
+          <RainbowKitCustomConnectButton title="try now" secondary />
+          {/* <button
+           
             className="self-start bg-brand-darkgray hover:bg-brand-darkgray/80 text-white py-3 px-12 rounded-full text-xl transition-all animate-glow-gray border-2 border-black font-inter font-semibold"
           >
             try now
-          </button>
+          </button> */}
         </div>
       </div>
     </div>
