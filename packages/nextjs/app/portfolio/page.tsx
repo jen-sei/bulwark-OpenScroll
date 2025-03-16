@@ -1,7 +1,7 @@
 "use client";
 
-import Image from "next/image";
 import { NextPage } from "next";
+import Header from "~~/components/Header";
 import Sidebar from "~~/components/Sidebar";
 
 const Agents: NextPage = () => {
@@ -11,9 +11,7 @@ const Agents: NextPage = () => {
 
       {/* Main Content */}
       <div className="flex-1 flex flex-col">
-        {/* Header */}
-        <header className="h-[84px] border-b border-neutral-800 flex items-center justify-between px-6">header</header>
-
+        <Header title="Portfolio" subtitle="Overview" />
         {/* Content */}
         <main className="flex-1 p-6 bg-neutral-900">portfolio</main>
       </div>
