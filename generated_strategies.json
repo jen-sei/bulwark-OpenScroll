@@ -1,0 +1,98 @@
+{
+  "strategies": [
+    {
+      "name": "Anchor",
+      "risk_level": 1,
+      "steps": [
+        {
+          "protocol": "AAVE",
+          "action": "Supply",
+          "token": "USDC",
+          "amount": 5000.0,
+          "expected_apy": 3.75
+        }
+      ],
+      "explanation": "This strategy focuses on supplying USDC on AAVE to earn a stable APY of 3.75%. By utilizing USDC primarily, we aim for minimal volatility and steady growth over time.",
+      "total_expected_apy": 3.75,
+      "risk_factors": [
+        "Minimal volatility due to USDC focus"
+      ]
+    },
+    {
+      "name": "Zenith",
+      "risk_level": 3,
+      "steps": [
+        {
+          "protocol": "AAVE",
+          "action": "Supply",
+          "token": "USDC",
+          "amount": 5000.0,
+          "expected_apy": 3.75
+        },
+        {
+          "protocol": "AAVE",
+          "action": "Borrow",
+          "token": "ETH",
+          "amount": 2.5,
+          "expected_apy": 2.1
+        },
+        {
+          "protocol": "AAVE",
+          "action": "Supply",
+          "token": "ETH",
+          "amount": 2.5,
+          "expected_apy": 1.82
+        }
+      ],
+      "explanation": "This Zenith strategy involves supplying USDC on AAVE to earn 3.75% APY, borrowing ETH against the supplied USDC to leverage, and then supplying the borrowed ETH back to earn additional yield. This balanced approach aims to generate moderate leverage while maintaining a reasonable health factor.",
+      "total_expected_apy": 5.57,
+      "risk_factors": [
+        "Leverage risk",
+        "Market volatility"
+      ]
+    },
+    {
+      "name": "Wildcard",
+      "risk_level": 5,
+      "steps": [
+        {
+          "protocol": "AAVE",
+          "action": "Supply",
+          "token": "USDC",
+          "amount": 5000.0,
+          "expected_apy": 3.75
+        },
+        {
+          "protocol": "AAVE",
+          "action": "Borrow",
+          "token": "ETH",
+          "amount": 2.5,
+          "expected_apy": 2.1
+        },
+        {
+          "protocol": "AAVE",
+          "action": "Supply",
+          "token": "ETH",
+          "amount": 2.5,
+          "expected_apy": 1.82
+        }
+      ],
+      "explanation": "This Wildcard strategy involves supplying all USDC to AAVE for a 3.75% APY, then borrowing 2.5 ETH against it at 2.1% APY, and supplying the borrowed ETH back for a 1.82% APY. This recursive leveraging strategy aims to maximize yield through multiple cycles of borrowing and supplying.",
+      "total_expected_apy": 8.67,
+      "risk_factors": [
+        "High leverage risk",
+        "Market volatility risk"
+      ]
+    }
+  ],
+  "wallet": {
+    "balances": {
+      "USDC": 5000,
+      "ETH": 2.5,
+      "SRC": 250
+    }
+  },
+  "market_data": {
+    "conditions": "stable"
+  }
+}
