@@ -2,7 +2,10 @@ import Image from "next/image";
 
 function FeatureCard({ title, description, imageSrc }: { title: string; description: string; imageSrc: string }) {
   return (
-    <div className="bg-card bg-brand-dark rounded-lg p-4 md:p-8 pb-0 md:pb-0 flex flex-col flex-1 border border-brand-cream">
+    <div
+      className="bg-card bg-brand-dark rounded-lg p-4 md:p-8 pb-0 md:pb-0 flex flex-col flex-1 border border-brand-cream
+                    transition-all duration-300 hover:transform hover:scale-[1.02] hover:shadow-[0_0_15px_rgba(246,100,53,0.5)]"
+    >
       <div className="mb-auto text-white font-inter font-light">
         <h2 className="text-2xl font-bold mb-3">{title}</h2>
         <p className="text-sm md:text-base opacity-90">{description}</p>
