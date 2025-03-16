@@ -53,6 +53,17 @@ def generate_strategies(request: WalletRequest):
         print(f"Generating strategies for wallet: {request.address}")
         print(f"Balances: {request.balances}")
         
+        # Convert any float balances to strings and then to Decimal for safety
+        sanitized_balances = {}
+        for token, amount in request.balances.items():
+            try:
+                # Keep the balance as is - no conversion to Decimal here
+                # This avoids the issue with Decimal conversion
+                sanitized_balances[token] = amount
+            except Exception as e:
+                print(f"Error converting balance for {token}: {e}")
+                sanitized_balances[token] = 0  # Default to 0 if conversion fails
+        
         # For a real implementation, you would fetch market data from external sources
         # For the hackathon, we'll use hardcoded data
         market_data = {
@@ -85,7 +96,7 @@ def generate_strategies(request: WalletRequest):
         
         # Generate strategies
         strategies_json = generator.generate_strategies_json(
-            request.balances,
+            sanitized_balances,
             market_data,
             risk_metrics
         )
@@ -94,6 +105,8 @@ def generate_strategies(request: WalletRequest):
     
     except Exception as e:
         print(f"Error generating strategies: {e}")
+        import traceback
+        traceback.print_exc()
         raise HTTPException(status_code=500, detail=str(e))
 
 if __name__ == "__main__":

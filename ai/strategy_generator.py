@@ -199,23 +199,45 @@ class StrategyGenerator:
         
     def _parse_strategy(self, data: Dict) -> Strategy:
         """Parse the LLM response into a Strategy object"""
-        steps = [
-            StrategyStep(
-                protocol=step["protocol"],
-                action=step["action"],
-                token=step["token"],
-                amount=Decimal(str(step["amount"])),
-                expected_apy=Decimal(str(step["expected_apy"]))
-            )
-            for step in data["steps"]
-        ]
+        steps = []
+        for step in data["steps"]:
+            try:
+                # More robust conversion for amounts and APY values
+                amount_str = str(step["amount"]).replace(',', '')
+                apy_str = str(step["expected_apy"]).replace(',', '')
+                
+                steps.append(StrategyStep(
+                    protocol=step["protocol"],
+                    action=step["action"],
+                    token=step["token"],
+                    amount=Decimal(amount_str),
+                    expected_apy=Decimal(apy_str)
+                ))
+            except Exception as e:
+                print(f"Warning: Error parsing step {step}: {e}")
+                # Fallback to default values if conversion fails
+                steps.append(StrategyStep(
+                    protocol=step["protocol"],
+                    action=step["action"],
+                    token=step["token"],
+                    amount=Decimal("0"),
+                    expected_apy=Decimal("0")
+                ))
+        
+        # Also make total_expected_apy conversion more robust
+        try:
+            total_apy_str = str(data["total_expected_apy"]).replace(',', '')
+            total_expected_apy = Decimal(total_apy_str)
+        except Exception as e:
+            print(f"Warning: Error parsing total_expected_apy: {e}")
+            total_expected_apy = Decimal("0")
         
         return Strategy(
             name=data["name"],
             risk_level=data["risk_level"],
             steps=steps,
             explanation=data["explanation"],
-            total_expected_apy=Decimal(str(data["total_expected_apy"])),
+            total_expected_apy=total_expected_apy,
             risk_factors=data["risk_factors"]
         )
         
