@@ -25,9 +25,7 @@ const Agents: NextPage = () => {
                 <PerformanceChart />
               </div>
 
-              {/* <div className="bg-[#000000] rounded-2xl p-6 shadow-lg"> */}
               <AlertsPanel />
-              {/* </div> */}
 
               <div className="lg:col-span-1 bg-[#000000] rounded-2xl p-6 shadow-lg">
                 <HealthFactorPanel />

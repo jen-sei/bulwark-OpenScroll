@@ -16,12 +16,12 @@ const Header: React.FC<HeaderProps> = ({ title, subtitle }) => {
   const pathname = usePathname();
   const { isConnected } = useAccount();
 
-  useEffect(() => {
-    if (!isConnected) {
-      console.log("Wallet disconnected, redirecting to home page");
-      router.push("/");
-    }
-  }, [isConnected, router]);
+  // useEffect(() => {
+  //   if (!isConnected) {
+  //     console.log("Wallet disconnected, redirecting to home page");
+  //     router.push("/");
+  //   }
+  // }, [isConnected, router]);
 
   // Map routes to their corresponding icons
   const routeIcons: Record<string, string> = {
