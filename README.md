@@ -1,80 +1,84 @@
-# 🏗 Scaffold-ETH 2
+# Bulwark
 
-<h4 align="center">
-  <a href="https://docs.scaffoldeth.io">Documentation</a> |
-  <a href="https://scaffoldeth.io">Website</a>
-</h4>
+![github banner](https://github.com/user-attachments/assets/8af1707f-605b-4634-90fb-0df0039963dd)
+Bulwark is an AI-driven, automated DeFi vault system that optimizes yield strategies across lending, DEX, and yield protocols while ensuring risk-adjusted portfolio management.
 
-🧪 An open-source, up-to-date toolkit for building decentralized applications (dapps) on the Ethereum blockchain. It's designed to make it easier for developers to create and deploy smart contracts and build user interfaces that interact with those contracts.
+[Demo]() | [Prototype App](https://bulwark-scroll.vercel.app/) | [Slide Deck]() | [Contribution Guide]() | [Design Files]() | [UI Mockups]()
 
-⚙️ Built using NextJS, RainbowKit, Foundry, Wagmi, Viem, and Typescript.
+---
 
-- ✅ **Contract Hot Reload**: Your frontend auto-adapts to your smart contract as you edit it.
-- 🪝 **[Custom hooks](https://docs.scaffoldeth.io/hooks/)**: Collection of React hooks wrapper around [wagmi](https://wagmi.sh/) to simplify interactions with smart contracts with typescript autocompletion.
-- 🧱 [**Components**](https://docs.scaffoldeth.io/components/): Collection of common web3 components to quickly build your frontend.
-- 🔥 **Burner Wallet & Local Faucet**: Quickly test your application with a burner wallet and local faucet.
-- 🔐 **Integration with Wallet Providers**: Connect to different wallet providers and interact with the Ethereum network.
+## The Team
+Bulwark is built by a team of experienced blockchain developers, AI engineers, and DeFi strategists with backgrounds in smart contract development, machine learning, and financial modeling.
 
-![Debug Contracts tab](https://github.com/scaffold-eth/scaffold-eth-2/assets/55535804/b237af0c-5027-4849-a5c1-2e31495cccb1)
+![12  team](https://github.com/user-attachments/assets/5800e7c6-3353-4f94-94ca-d19b74b3d59e)
 
-## Requirements
+Our combined experience spans DeFi infrastructure, AI-driven portfolio management, and Web3 security, making us uniquely suited to solve this problem.
 
-Before you begin, you need to install the following tools:
+---
 
-- [Node (>= v18.18)](https://nodejs.org/en/download/)
-- Yarn ([v1](https://classic.yarnpkg.com/en/docs/install/) or [v2+](https://yarnpkg.com/getting-started/install))
-- [Git](https://git-scm.com/downloads)
+## The Problem We Are Solving
+DeFi users face several key challenges:
+1. **Overwhelming Complexity** – Managing DeFi positions across multiple protocols requires constant monitoring and rebalancing.
+2. **Risk Mismanagement** – Many users do not fully understand liquidation risks, yield fluctuations, or optimal collateralization ratios.
+3. **Execution Friction** – Moving assets between lending, trading, and staking platforms is inefficient and costly.
 
-## Quickstart
+These challenges make it difficult for users to optimize yield while maintaining capital efficiency and security.
 
-To get started with Scaffold-ETH 2, follow the steps below:
+---
 
-1. Install dependencies if it was skipped in CLI:
+## How We Solve It
+Bulwark automates DeFi portfolio management with AI-driven strategy generation and smart contract execution:
 
-```
-cd my-dapp-example
-yarn install
-```
+1. **Wallet Analysis & Strategy Generation** – AI analyzes wallet holdings and market data to generate optimized allocation strategies.
+2. **One-Click Execution** – Smart contract batch execution ensures efficient capital deployment across protocols.
+3. **Real-Time Monitoring & Alerts** – Automated liquidation risk monitoring and yield rebalancing keep portfolios optimized.
+4. **Intelligent Rebalancing** – AI continuously evaluates and suggests better risk-adjusted strategies.
 
-2. Run a local network in the first terminal:
+---
 
-```
-yarn chain
-```
+## Why Now?
+DeFi adoption is surging, but:
+- Users lack **intelligent portfolio automation** tools.
+- AI-powered financial management is revolutionizing **TradFi**, and DeFi is the next frontier.
+- The emergence of **Scroll Layer 2** and modular smart contract execution creates new efficiencies.
 
-This command starts a local Ethereum network using Foundry. The network runs on your local machine and can be used for testing and development. You can customize the network configuration in `packages/foundry/foundry.toml`.
+Now is the perfect moment to build an AI-powered, fully automated DeFi vault system.
 
-3. On a second terminal, deploy the test contract:
+---
 
-```
-yarn deploy
-```
+## Existing Solutions vs. Bulwark
+While some vault projects exist (Yearn, Beefy, Idle), Bulwark is different:
 
-This command deploys a test smart contract to the local network. The contract is located in `packages/foundry/contracts` and can be modified to suit your needs. The `yarn deploy` command uses the deploy script located in `packages/foundry/script` to deploy the contract to the network. You can also customize the deploy script.
+| Feature               | Yearn Finance | Beefy Finance | Bulwark |
+|----------------------|--------------|--------------|---------|
+| AI-Driven Strategies | ❌ No        | ❌ No        | ✅ Yes  |
+| Risk Categorization  | ❌ No        | ❌ No        | ✅ Yes  |
+| Multi-Protocol Execution | ✅ Yes | ✅ Yes | ✅ Yes |
+| Automated Rebalancing | ❌ No | ❌ No | ✅ Yes |
+| Liquidation Risk Monitoring | ❌ No | ❌ No | ✅ Yes |
 
-4. On a third terminal, start your NextJS app:
+Bulwark combines AI, DeFi automation, and risk-aware strategy execution in a seamless, user-friendly experience.
 
-```
-yarn start
-```
+---
 
-Visit your app on: `http://localhost:3000`. You can interact with your smart contract using the `Debug Contracts` page. You can tweak the app config in `packages/nextjs/scaffold.config.ts`.
+## Future Plans
+- **Expanding Protocol Integrations** – Adding support for more lending platforms, DEXs, and yield aggregators.
+- **Automated Rebalancing Execution** – Enabling fully autonomous portfolio optimization.
+- **Gasless Transactions** – Implementing account abstraction for fee-less interactions.
+- **Governance & DAO** – Community-driven optimization and decision-making.
 
-Run smart contract test with `yarn foundry:test`
+---
 
-- Edit your smart contracts in `packages/foundry/contracts`
-- Edit your frontend homepage at `packages/nextjs/app/page.tsx`. For guidance on [routing](https://nextjs.org/docs/app/building-your-application/routing/defining-routes) and configuring [pages/layouts](https://nextjs.org/docs/app/building-your-application/routing/pages-and-layouts) checkout the Next.js documentation.
-- Edit your deployment scripts in `packages/foundry/script`
+## Tech Stack
+- **Frontend:** React (Next.js), Tailwind CSS, ethers.js
+- **Backend:** FastAPI (Python), OpenAI API, WebSockets
+- **Blockchain:** Solidity (Scroll L2), AAVE V3, Compound V3, Quill, Ambient
+- **AI Engine:** OpenAI GPT-4 for strategy generation
+- **Monitoring:** Real-time liquidation alerts and strategy rebalancing
 
+![10  tech stack (1)](https://github.com/user-attachments/assets/bba6bf27-0856-443c-ac47-f3ab0fc89a88)
 
-## Documentation
+---
 
-Visit our [docs](https://docs.scaffoldeth.io) to learn how to start building with Scaffold-ETH 2.
-
-To know more about its features, check out our [website](https://scaffoldeth.io).
-
-## Contributing to Scaffold-ETH 2
-
-We welcome contributions to Scaffold-ETH 2!
-
-Please see [CONTRIBUTING.MD](https://github.com/scaffold-eth/scaffold-eth-2/blob/main/CONTRIBUTING.md) for more information and guidelines for contributing to Scaffold-ETH 2.
+## Contributing
+We welcome contributions! See [CONTRIBUTE.md]() for guidelines.
