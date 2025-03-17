@@ -1,6 +1,7 @@
 import Description from "./Description";
 import Features from "./Features";
 import Hero from "./Hero";
+import ProtocolLogos from "./ProtocolLogos";
 
 export default function Home() {
   return (
@@ -8,6 +9,7 @@ export default function Home() {
       <Hero />
       <Description />
       <Features />
+      <ProtocolLogos />
       <p className="text-brand-cream text-xs md:text-sm text-center font-inter font-light px-2 py-0 mb-1">
         Built in public with ♥ during Open Scroll Hackathon 2025
       </p>
