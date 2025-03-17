@@ -1,0 +1,15 @@
+# Slide Deck
+
+![1  logo (1)](https://github.com/user-attachments/assets/31bbd87e-0ffb-44dd-a615-eda39f6ebb95)
+![2  intro (1)](https://github.com/user-attachments/assets/4e824268-9e9a-4005-b639-9fab243bce93)
+![3  core features (1)](https://github.com/user-attachments/assets/0dda68f6-df4b-4e86-8a61-fb8ae72f97d5)
+![4  core features](https://github.com/user-attachments/assets/9d8cf088-0f20-4129-952e-41770550db83)
+![5  screenshots](https://github.com/user-attachments/assets/700047d4-91e6-47d5-ab8a-c15dfbf8efbd)
+![why](https://github.com/user-attachments/assets/e0e5879d-ab4b-417a-8fa1-957d227f8d6d)
+![7  user flow (2)](https://github.com/user-attachments/assets/0fd98983-5875-47ba-a524-46b368d75dc8)
+![8  benefits](https://github.com/user-attachments/assets/2425081f-1e12-4872-92ac-49b19507f10d)
+![9  ai agent architecture (2)](https://github.com/user-attachments/assets/81df683a-3a73-4f55-81d2-6a7866e2a68b)
+![10  tech stack (2)](https://github.com/user-attachments/assets/40c3277d-9a20-4d3b-b636-1aa89e5f0909)
+![11  future plans](https://github.com/user-attachments/assets/ad7bf149-17d3-4e00-90bf-88677679a234)
+![12  team (1)](https://github.com/user-attachments/assets/e7c82b4d-3071-4836-9c8c-7f5c81d17c82)
+![13  logo](https://github.com/user-attachments/assets/bd4d3922-6015-4b02-87b4-d249ffad4175)
