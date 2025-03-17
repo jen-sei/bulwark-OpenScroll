@@ -1,10 +1,11 @@
 "use client";
 
-import { useEffect } from "react";
-import { formatEther, formatUnits } from "viem";
+import { useEffect, useMemo } from "react";
+import { erc20Abi, formatEther, formatUnits } from "viem";
 import { useAccount, useBalance, useReadContracts } from "wagmi";
+import { TOKEN_ADDRESSES, TOKEN_DECIMALS } from "~~/const";
 import { useTargetNetwork } from "~~/hooks/scaffold-eth/useTargetNetwork";
-import { TOKEN_ADDRESSES, TOKEN_DECIMALS, erc20Abi, useBalancesStore } from "~~/services/store/balances";
+import { useBalancesStore } from "~~/services/store/balances";
 import { TokenBalances } from "~~/types/balances";
 
 export function useBalances() {
@@ -24,15 +25,21 @@ export function useBalances() {
 
   // Get token addresses for current chain
   const chainId = targetNetwork.id.toString();
-  const tokenAddresses = TOKEN_ADDRESSES[chainId] || {};
+
+  // Memoize tokenAddresses to prevent unnecessary re-renders
+  const tokenAddresses = useMemo(() => {
+    return TOKEN_ADDRESSES[chainId] || {};
+  }, [chainId]);
 
   // Prepare contract calls for ERC20 tokens
-  const contractCalls = Object.entries(tokenAddresses).map(([token, tokenAddress]) => ({
-    address: tokenAddress,
-    abi: erc20Abi,
-    functionName: "balanceOf" as const,
-    args: [address as `0x${string}`],
-  }));
+  const contractCalls = useMemo(() => {
+    return Object.entries(tokenAddresses).map(([token, tokenAddress]) => ({
+      address: tokenAddress,
+      abi: erc20Abi,
+      functionName: "balanceOf" as const,
+      args: [address as `0x${string}`],
+    }));
+  }, [tokenAddresses, address]);
 
   // Get token balances
   const {
@@ -84,7 +91,6 @@ export function useBalances() {
     tokenAddresses,
   ]);
 
-  // Function to manually refresh balances
   const refreshBalances = () => {
     if (address) {
       refetchEth();

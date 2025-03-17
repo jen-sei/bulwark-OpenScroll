@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import StrategyCard from "../StrategyCard";
 import Popup from "../ui/Popup";
+import ExecuteStrategyButton from "./ExecuteStrategyButton";
 import { useAccount } from "wagmi";
 import { useBalances } from "~~/hooks/useBalances";
 import strategiesData from "~~/services/example-strategies-json.json";
@@ -58,10 +59,10 @@ const StrategySelector: React.FC = () => {
         setIsLoading(false);
       }
     };
-    fetchStrategies();
+    // fetchStrategies();
 
-    // setStrategies(selectedStrategies);
-    // setIsLoading(false);
+    setStrategies(selectedStrategies);
+    setIsLoading(false);
   }, [address, balances, isBalancesLoading]);
 
   const handleExecuteStrategy = () => {
@@ -122,13 +123,20 @@ const StrategySelector: React.FC = () => {
               />
               <div className="h-[80px] w-full flex justify-center items-center">
                 {selectedStrategy === strategy.risk_level && (
-                  <button
-                    className="w-48 bg-[#fff9e8] text-black font-medium rounded-md p-3 hover:bg-[#fff0c4] transition-colors"
-                    onClick={handleExecuteStrategy}
-                    disabled={isExecuting}
-                  >
-                    {isExecuting ? "Deploying..." : "Deploy"}
-                  </button>
+                  <ExecuteStrategyButton
+                    strategy={strategy}
+                    amount={balances.USDC || "0"}
+                    onSuccess={() => {
+                      setIsPopupOpen(true);
+                    }}
+                  />
+                  // <button
+                  //   className="w-48 bg-[#fff9e8] text-black font-medium rounded-md p-3 hover:bg-[#fff0c4] transition-colors"
+                  //   onClick={handleExecuteStrategy}
+                  //   disabled={isExecuting}
+                  // >
+                  //   {isExecuting ? "Deploying..." : "Deploy"}
+                  // </button>
                 )}
               </div>
             </div>
