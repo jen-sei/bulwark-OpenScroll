@@ -1,0 +1,92 @@
+Bulwark is an AI-powered decentralized finance (DeFi) strategy optimizer built specifically for the Scroll blockchain network. Scroll is a zkEVM-based Ethereum Layer 2 solution that offers enhanced scalability, fast transaction speeds, and significantly lower transaction costs compared to Ethereum's mainnet.
+
+Bulwark’s core objective is to simplify and democratize strategic DeFi asset management, enabling users—whether beginners or experienced crypto investors—to effortlessly access optimized DeFi strategies. The platform automatically analyzes a user’s cryptocurrency wallet, evaluates current market conditions, assesses risk exposure, and generates tailored asset allocation strategies.
+
+Main Components and Features of Bulwark:
+
+1. Portfolio Analysis
+Wallet Analysis: Automatically identifies token balances (ETH, USDC, SRC, and others) and existing positions within user wallets.
+Multi-Protocol Position Detection: Scans and detects active lending, borrowing, liquidity providing (LP), and other DeFi positions across supported protocols (AAVE V3, Ambient DEX, and Quill Finance).
+Risk Exposure Assessment: Calculates key risk metrics such as collateral risks, liquidation thresholds, health factors, and correlation risks across active positions.
+Historical Performance Tracking: Planned feature to provide comprehensive historical analytics on past performance, yields, and ROI.
+2. Strategy Generation and Risk Categorization
+Uses an internal AI model powered by OpenAI's GPT technology to generate optimized DeFi strategies.
+Offers five distinct risk categories to suit different investor profiles:
+Anchor Strategy (Risk Level 1): Highly conservative, prioritizes stablecoin-based yields and minimal exposure to volatility.
+Zenith Strategy: Balanced approach optimizing risk-to-reward ratio, moderate leveraging and diversification across protocols.
+Wildcard Strategy: Highly aggressive approach involving high leverage, frequent trading and arbitrage across DeFi platforms to potentially maximize returns at the cost of higher risk.
+3. Multi-Protocol Routing and Execution
+Automatically evaluates best yield opportunities across multiple integrated DeFi protocols:
+
+AAVE v3: Lending and borrowing ETH, USDC, SRC and other tokens. Bulwark utilizes AAVE’s health factor and liquidation thresholds for advanced risk management.
+Ambient DEX (CrocSwap): Handles token swaps, liquidity provision, real-time pool liquidity analysis, swap price impacts, and optimal token exchange rates.
+Quill Finance: Allows users to borrow stablecoins (USDQ) against collateral such as ETH and SRC. Includes detailed collateral management, liquidation avoidance strategies, and interaction with stability pools.
+Intelligent routing ensures optimal returns and minimal gas fees by automatically determining the most efficient pathways through these protocols.
+
+4. Rebalancing Logic
+Proactively tracks market conditions in real-time, adjusting strategies automatically when specific parameters or risk thresholds are breached.
+Sends real-time user notifications recommending portfolio adjustments and rebalancing opportunities.
+5. User Interface
+Strategy Visualization: Provides clear, intuitive visual flow diagrams representing token flow across multiple DeFi platforms (AAVE, Ambient, Quill).
+Risk Visualization: Color-codes all recommended strategy steps and pathways by risk severity—green for low risk, amber for moderate, red for high risk.
+APY & Return Projections: Clearly displays projected annual percentage yields (APYs), returns, and expected performance for all recommended strategies.
+5. AI-Powered Governance Assistant (Planned)
+Bulwark also plans to integrate an AI-powered Governance Assistant chatbot that will provide services such as:
+
+Governance proposal impact analysis
+Help drafting governance proposals
+Governance vote delegation assistance
+Simulation of governance outcomes
+Treasury visualization
+Direct action integration (execute votes and delegations through the chatbot interface)
+5. Technical Infrastructure
+Backend: Developed using Python and FastAPI, deployed on Render.com.
+Key API endpoints:
+/api/generate-strategies: generates optimized DeFi strategies based on wallet data.
+/api/market-data: fetches real-time market data from AAVE.
+/api/ambient-market-data: Ambient DEX data retrieval.
+/api/quill-market-data: fetches market data from Quill Finance.
+/api/ask: Q&A chatbot endpoint using OpenAI and this context.
+Frontend: Built with React and Next.js, hosted on Vercel.
+Key UI pages:
+Landing page: Overview and authentication.
+Dashboard: Strategy generation, portfolio overview, real-time updates and alerts.
+Ask page: AI-driven chatbot interface for instant help and user education about Bulwark.
+6. Security and Data Management
+Secure handling of environment variables and API keys (OPENAI_API_KEY).
+All sensitive keys and credentials securely stored as environment variables.
+6. Upcoming Features and Roadmap
+Implementation of batch transaction aggregator smart contract to enable single-click strategy execution, reducing friction significantly for end users.
+Enhanced analytics dashboard providing historical data on portfolio performance, strategy effectiveness, and market insights.
+Improved risk assessment models leveraging additional data sources (oracle price feeds, volatility metrics) for more robust strategy generation.
+Integration with governance frameworks, enabling users to participate directly in protocol governance through Bulwark's chatbot.
+6. Supported Protocol Details:
+AAVE V3 Protocol:
+
+Lending and borrowing marketplace with variable APYs based on liquidity conditions.
+Health factor and liquidation threshold analytics for risk-aware lending decisions.
+Ambient (CrocSwap) DEX:
+
+Token swaps, price impact analysis, liquidity provision.
+Calculates the potential price impact and slippage for user swaps.
+Quill Finance:
+
+Collateral-backed borrowing of USDQ stablecoin.
+Stability pool interactions and precise calculation of maximum borrowable amounts based on collateral and current market prices.
+6. Roadmap and Upcoming Features
+Immediate next steps:
+
+Refine AI prompt engineering for accuracy and better DeFi strategy recommendations.
+Deployment of transaction aggregation functionality via Scroll smart contracts.
+Long-term Goals:
+
+Grow community engagement through governance features, including voting and delegation via chatbot interface.
+Expand the platform’s integrations to more DeFi protocols and potentially cross-chain support.
+6. Governance Assistant (AI Chatbot)
+Integrated chatbot powered by OpenAI, providing users with instant answers to platform-specific questions.
+Capable of explaining Bulwark features, assisting with understanding proposals and governance aspects, analyzing proposal impacts, and guiding users to execute delegations and votes.
+7. Development and Collaboration
+The Bulwark team includes backend and frontend developers actively collaborating, ensuring a seamless and robust user experience.
+Uses modern software development best practices, such as GitHub version control, CI/CD, secure management of environment variables (OPENAI_API_KEY), and comprehensive API error handling and logging.
+In Summary:
+Bulwark aims to empower users on the Scroll blockchain to easily optimize their DeFi strategies through an intuitive, AI-driven interface. By leveraging key DeFi protocols (AAVE v3, Ambient, Quill), offering sophisticated portfolio management, and enhancing user experience with clear visualizations and AI-driven insights, Bulwark aspires to become the go-to tool for secure and profitable decentralized financial management on Scroll network.
