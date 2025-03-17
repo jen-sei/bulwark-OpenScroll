@@ -1,4 +1,5 @@
 # api/main.py
+
 from fastapi import FastAPI, HTTPException, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
@@ -7,6 +8,8 @@ import sys
 import os
 import json
 from decimal import Decimal
+import openai  # For the chatbot endpoint
+from openai import OpenAI
 
 # Add the parent directory to sys.path
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
@@ -16,6 +19,9 @@ from ai.services.aave_service import AaveService
 from ai.services.ambient_service import AmbientService
 from ai.services.quill_service import QuillService
 from ai.services.wallet_service import WalletService
+
+# Set up OpenAI key
+openai.api_key = os.getenv("OPENAI_API_KEY")
 
 app = FastAPI(title="Bulwark API", description="AI-powered DeFi strategies for Scroll network")
 
@@ -33,7 +39,19 @@ app.add_middleware(
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
-)   
+)
+
+# Load Bulwark context from file
+BULWARK_CONTEXT = ""
+try:
+    # Adjust path as needed; this example assumes "ai/context/bulwark_context.txt" is one level above this file
+    context_file_path = os.path.join(os.path.dirname(__file__), "bulwark_context.txt")
+    with open(context_file_path, "r", encoding="utf-8") as f:
+        BULWARK_CONTEXT = f.read()
+    print("DEBUG: Loaded bulwark context from:", context_file_path)
+    print("DEBUG: First 200 chars:", BULWARK_CONTEXT[:200])
+except Exception as e:
+    print(f"Warning: Could not load Bulwark context file: {e}")
 
 # Create service dependencies
 def get_strategy_generator():
@@ -121,7 +139,7 @@ def calculate_max_borrowable(
     """Calculate the maximum USDQ borrowable for a given collateral amount"""
     try:
         max_borrowable = quill_service.get_max_borrowable_amount(
-            collateral_token, 
+            collateral_token,
             Decimal(str(amount))
         )
         return {
@@ -145,8 +163,8 @@ def calculate_swap_impact(
     """Calculate the impact of swapping tokens"""
     try:
         impact = ambient_service.calculate_swap_impact(
-            from_token, 
-            to_token, 
+            from_token,
+            to_token,
             Decimal(str(amount))
         )
         return {
@@ -168,8 +186,6 @@ def analyze_wallet(address: str, wallet_service: WalletService = Depends(get_wal
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error analyzing wallet: {str(e)}")
 
-# Updated generate_strategies function for api/main.py
-
 @app.post("/api/generate-strategies", response_model=GenerateStrategiesResponse)
 def generate_strategies(
     request: WalletRequest,
@@ -181,25 +197,24 @@ def generate_strategies(
 ):
     """Generate optimized DeFi strategies based on wallet holdings"""
     try:
-        # Log request
         print(f"Generating strategies for wallet: {request.address}")
-        
-        # Get balances either from request or fetch them if not provided
+
+        # If balances not provided, fetch them from the chain
         wallet_balances = request.balances
         if not wallet_balances:
             print("No balances provided in request, fetching from blockchain...")
             wallet_data = wallet_service.analyze_wallet(request.address)
             wallet_balances = wallet_data.get("balances", {})
-        
+
         print(f"Balances: {wallet_balances}")
-        
-        # Ensure we have both ETH and WETH in the balances to handle token mapping
+
+        # Handle ETH/WETH equivalences
         if "ETH" in wallet_balances and "WETH" not in wallet_balances:
             wallet_balances["WETH"] = wallet_balances["ETH"]
         elif "WETH" in wallet_balances and "ETH" not in wallet_balances:
             wallet_balances["ETH"] = wallet_balances["WETH"]
-        
-        # Convert any float balances to the format required by strategy generator
+
+        # Convert balances to float
         sanitized_balances = {}
         for token, amount in wallet_balances.items():
             try:
@@ -207,36 +222,25 @@ def generate_strategies(
             except Exception as e:
                 print(f"Error converting balance for {token}: {e}")
                 sanitized_balances[token] = 0
-        
-        # Fetch real market data from AAVE
+
+        # Attempt real market data from AAVE
         try:
             aave_market_data = aave_service.get_market_data()
             print("Using real market data from AAVE")
         except Exception as e:
             print(f"Error fetching market data from AAVE: {e}, using fallback data")
-            # Fallback to hardcoded data if AAVE fetch fails
             aave_market_data = {
                 "rates": {
                     "AAVE": {
-                        "supply_apy": {
-                            "USDC": 3.75,
-                            "ETH": 1.82,
-                            "SRC": 2.5
-                        },
-                        "borrow_apy": {
-                            "USDC": 4.5,
-                            "ETH": 2.1,
-                            "SRC": 3.0
-                        }
+                        "supply_apy": {"USDC": 3.75, "ETH": 1.82, "SRC": 2.5},
+                        "borrow_apy": {"USDC": 4.5, "ETH": 2.1, "SRC": 3.0}
                     }
                 },
-                "tvl": {
-                    "AAVE": 80320000
-                },
+                "tvl": {"AAVE": 80320000},
                 "conditions": "stable"
             }
-        
-        # Fetch real market data from Ambient
+
+        # Ambient data
         try:
             ambient_market_data = ambient_service.get_market_data()
             print("Using real market data from Ambient")
@@ -266,8 +270,8 @@ def generate_strategies(
                 },
                 "swap_fees": 0.003
             }
-            
-        # Fetch real market data from Quill
+
+        # Quill data
         try:
             quill_market_data = quill_service.get_market_data()
             print("Using real market data from Quill")
@@ -276,14 +280,8 @@ def generate_strategies(
             quill_market_data = {
                 "protocol": "Quill",
                 "collaterals": {
-                    "ETH": {
-                        "price_usd": 2000.0,
-                        "min_collateral_ratio": 1.1
-                    },
-                    "SRC": {
-                        "price_usd": 10.0,
-                        "min_collateral_ratio": 1.15
-                    }
+                    "ETH": {"price_usd": 2000.0, "min_collateral_ratio": 1.1},
+                    "SRC": {"price_usd": 10.0, "min_collateral_ratio": 1.15}
                 },
                 "stability_pools": {
                     "ETH": {
@@ -307,8 +305,8 @@ def generate_strategies(
                     }
                 }
             }
-        
-        # Combine market data
+
+        # Combine data
         combined_market_data = {
             "rates": aave_market_data.get("rates", {}),
             "tvl": aave_market_data.get("tvl", {}),
@@ -316,8 +314,8 @@ def generate_strategies(
             "dex": ambient_market_data,
             "quill": quill_market_data
         }
-        
-        # Get real risk metrics or use fallback
+
+        # Risk metrics
         try:
             risk_metrics = aave_service.get_user_risk_metrics(request.address)
             print("Using real risk metrics from AAVE")
@@ -328,16 +326,16 @@ def generate_strategies(
                 "liquidation_threshold": 0.85,
                 "current_ratio": 1.5
             }
-        
+
         # Generate strategies
         strategies_json = strategy_generator.generate_strategies_json(
             sanitized_balances,
             combined_market_data,
             risk_metrics
         )
-        
+
         return strategies_json
-    
+
     except Exception as e:
         print(f"Error generating strategies: {e}")
         import traceback
@@ -348,6 +346,58 @@ def generate_strategies(
 def health_check():
     """API health check endpoint"""
     return {"status": "ok"}
+
+# ---------------------------
+#      NEW CHAT ENDPOINT
+# ---------------------------
+
+class ChatRequest(BaseModel):
+    user_query: str
+
+@app.post("/api/ask")
+def ask_bulwark(request: ChatRequest):
+    """
+    Q&A Endpoint for Bulwark. Accepts a user_query,
+    then uses the content from BULWARK_CONTEXT plus
+    OpenAI to generate an answer.
+    """
+    try:
+        user_question = request.user_query
+        if not user_question:
+            raise ValueError("Query cannot be empty")
+
+        # Build the prompt using system + user
+        messages = [
+            {
+                "role": "system",
+                "content": (
+                    "You are a helpful assistant with specialized knowledge about the Bulwark DeFi strategy platform on Scroll. "
+                    "Use the following context to answer questions accurately:\n\n"
+                    f"{BULWARK_CONTEXT}\n\n"
+                    "If the user asks something not in the context, do your best to answer. Be concise but informative."
+                )
+            },
+            {
+                "role": "user",
+                "content": user_question
+            }
+        ]
+
+        # Create a client with your API key
+        client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+
+        response = client.chat.completions.create(
+            model="gpt-3.5-turbo",
+            messages=messages,   # <-- pass the system + user messages you constructed
+            temperature=0.7
+        )
+
+        answer = response.choices[0].message.content
+        return {"answer": answer}
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error: {str(e)}")
+
 
 if __name__ == "__main__":
     import uvicorn
