@@ -3,7 +3,7 @@ import FeatureCard from "./FeatureCard";
 
 const Features = () => {
   return (
-    <div className="flex flex-col mb-32 md:mb-48 max-w-screen-lg">
+    <div className="flex flex-col mb-16 md:mb-32 max-w-screen-lg">
       <h2 className="font-inter font-bold text-4xl md:text-7xl tracking-[-0.05em] bg-gradient bg-clip-text text-transparent">
         The power of Artificial Intelligence to propel blockchain innovation forward
       </h2>
@@ -13,7 +13,6 @@ const Features = () => {
       </p>
 
       <div className="flex flex-col gap-4 flex-wrap">
-        {/* First row */}
         <div className="flex flex-col md:flex-row gap-4 items-stretch justify-center">
           <FeatureCard
             title="Scroll Mastery"
@@ -28,7 +27,6 @@ const Features = () => {
           />
         </div>
 
-        {/* Second row */}
         <div className="flex flex-col md:flex-row gap-4">
           <FeatureCard
             title="Profit/Loss Tracking"
