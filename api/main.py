@@ -168,6 +168,8 @@ def analyze_wallet(address: str, wallet_service: WalletService = Depends(get_wal
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error analyzing wallet: {str(e)}")
 
+# Updated generate_strategies function for api/main.py
+
 @app.post("/api/generate-strategies", response_model=GenerateStrategiesResponse)
 def generate_strategies(
     request: WalletRequest,
@@ -190,6 +192,12 @@ def generate_strategies(
             wallet_balances = wallet_data.get("balances", {})
         
         print(f"Balances: {wallet_balances}")
+        
+        # Ensure we have both ETH and WETH in the balances to handle token mapping
+        if "ETH" in wallet_balances and "WETH" not in wallet_balances:
+            wallet_balances["WETH"] = wallet_balances["ETH"]
+        elif "WETH" in wallet_balances and "ETH" not in wallet_balances:
+            wallet_balances["ETH"] = wallet_balances["WETH"]
         
         # Convert any float balances to the format required by strategy generator
         sanitized_balances = {}
