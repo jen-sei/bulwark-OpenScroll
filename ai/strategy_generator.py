@@ -103,8 +103,10 @@ class StrategyGenerator:
         
     # Add this method to your ai/strategy_generator.py
 
+# ai/strategy_generator.py - updated _build_prompt function
+
     def _build_prompt(self, context: str, strategy_type: str) -> str:
-        """Build the prompt for strategy generation
+        """Build the prompt for strategy generation with improved logic and APY constraints
         
         Args:
             context: JSON string with wallet and market data
@@ -123,22 +125,28 @@ class StrategyGenerator:
             usdc_balance = "unknown"
             src_balance = "unknown"
         
-        # Strategy descriptions and risk levels based on frontend
+        # Strategy descriptions and risk levels based on frontend with strictly bounded APY ranges
         strategy_descriptions = {
             "Anchor": {
-                "description": "Conservative strategy focused on steady growth over time. Should prioritize low-risk activities with minimal volatility.",
+                "description": "Conservative strategy focused on steady growth over time with minimal volatility.",
                 "risk_level": 1,
-                "target_apy": "around 3.8%"
+                "min_apy": 2.0,
+                "max_apy": 5.0,
+                "target_apy": "3.5%"
             },
             "Zenith": {
                 "description": "Balanced performance strategy that creates moderate leverage while maintaining reasonable risk levels.",
                 "risk_level": 3,
-                "target_apy": "around 5.5%"
+                "min_apy": 5.0, 
+                "max_apy": 15.0,
+                "target_apy": "8%"
             },
             "Wildcard": {
                 "description": "Aggressive strategy for risk-takers that maximizes yield through leveraging and higher-risk positions.",
                 "risk_level": 5,
-                "target_apy": "around 8.9%"
+                "min_apy": 15.0,
+                "max_apy": 30.0,
+                "target_apy": "20%"
             }
         }
         
@@ -146,71 +154,90 @@ class StrategyGenerator:
         strategy_info = strategy_descriptions.get(strategy_type, strategy_descriptions["Anchor"])
         
         return f"""You are an AI-powered DeFi strategy generator for the Scroll network. Based on the following wallet and market data:
-        {context}
-        
-        Generate a {strategy_type} strategy ({strategy_info["description"]})
-        This should be a risk level {strategy_info["risk_level"]} strategy with an expected APY of {strategy_info["target_apy"]}.
-        
-        You can use AAVE for lending/borrowing, Ambient DEX for swapping tokens or providing liquidity, and Quill Finance for borrowing USDQ stablecoin against collateral.
-        
-        IMPORTANT RULES:
-        1. NEVER recommend using more tokens than available in the wallet.
-        2. NEVER reuse tokens already allocated in previous steps.
-        3. CAREFULLY track available balances through all steps.
-        4. Keep proposed amounts PROPORTIONAL to wallet balances.
-        5. For small wallets (less than $100 total value), use CONSERVATIVE amounts.
-        6. USDQ borrowing amounts should be REASONABLE and no more than 20% of total wallet value.
-        
-        Strategy Guidelines:
-        - Anchor: Conservative strategy focused on low-risk activities like USDC supply on AAVE, providing stable liquidity to low-volatility pairs on Ambient DEX, or maintaining well-collateralized positions on Quill.
-        - Zenith: Balanced strategy may involve borrowing from AAVE or Quill, then redeploying assets to generate additional yield, while maintaining reasonable health factors and collateral ratios.
-        - Wildcard: Aggressive strategy that can use recursive leveraging with multiple protocols, concentrated liquidity positions, or higher leverage positions on Quill with lower interest rates to boost yields.
-        
-        Available Protocols:
-        1. AAVE - For lending and borrowing
-        - Actions: "supply", "borrow", "withdraw", "repay"
-        - Example: {{ "protocol": "AAVE", "action": "supply", "token": "USDC", "amount": 5.0, "expected_apy": 2.2 }}
-        
-        2. Ambient DEX - For token swaps and liquidity provision
-        - Actions: "swap", "add_liquidity", "remove_liquidity"
-        - Example swap: {{ "protocol": "Ambient", "action": "swap", "token": "USDC", "token_to": "ETH", "amount": 2.5, "expected_apy": 0 }}
-        - Example liquidity: {{ "protocol": "Ambient", "action": "add_liquidity", "pair": "ETH-USDC", "amount": 2.5, "expected_apy": 5.0 }}
-        
-        3. Quill Finance - For borrowing USDQ stablecoin against collateral
-        - Actions: "borrow_usdq", "repay_usdq", "provide_stability"
-        - Example borrow: {{ "protocol": "Quill", "action": "borrow_usdq", "token": "ETH", "amount": 0.005, "usdq_amount": 5.0, "interest_rate": 10, "expected_apy": -10.0 }}
-        - Example stability: {{ "protocol": "Quill", "action": "provide_stability", "token": "USDQ", "amount": 5.0, "expected_apy": 5.0 }}
-        
-        Requirements:
-        - Use available tokens wisely (ETH: {eth_balance}, USDC: {usdc_balance}, SRC: {src_balance})
-        - Track used amounts between steps to avoid reusing the same tokens
-        - Provide clear step-by-step actions
-        - Include realistic APY estimates
-        - Include comprehensive risk assessment
-        - When using Quill, set appropriate interest rates (6% to 350%, with higher rates reducing redemption risk)
-        - IMPORTANT: For small wallet balances, use proportional amounts and avoid suggesting large positions
-        
-        Return the strategy in the following JSON format:
-        {{
-            "name": "{strategy_type}",
-            "risk_level": {strategy_info["risk_level"]},
-            "steps": [
-                {{
-                    "protocol": "string",
-                    "action": "string",
-                    "token": "string",
-                    "amount": "number",
-                    "expected_apy": "number",
-                    "token_to": "string",  // Only required for Ambient swaps
-                    "interest_rate": "number",  // Only required for Quill borrowing
-                    "usdq_amount": "number"  // Only required for Quill borrowing
-                }}
-            ],
-            "explanation": "string",
-            "total_expected_apy": "number",
-            "risk_factors": ["string"]
-        }}
-        """
+    {context}
+
+    I need you to generate a {strategy_type} strategy ({strategy_info["description"]})
+    This should be a risk level {strategy_info["risk_level"]} strategy with a total expected APY between {strategy_info["min_apy"]}% and {strategy_info["max_apy"]}%.
+
+    IMPORTANT: You MUST follow these exact rules when generating strategies:
+
+    1. TOKEN BALANCE TRACKING: 
+    - Track all token balances precisely at each step
+    - NEVER suggest actions that would use more tokens than available
+    - Before adding a step, verify you have sufficient balance for that token
+
+    2. LOGICAL TOKEN FLOW:
+    - If borrowing from AAVE, always USE the borrowed tokens in a later step
+    - If borrowing USDQ from Quill, ALWAYS have a follow-up step using the borrowed USDQ
+    - NEVER provide more USDQ to stability pool than was borrowed or is available
+
+    3. APY CONSTRAINTS:
+    - Total strategy APY must be between {strategy_info["min_apy"]}% and {strategy_info["max_apy"]}%
+    - Individual step APYs should be realistic for the action
+    
+    4. STEP LIMITS:
+    - Include at most 3-4 steps for clarity
+    - Each step must directly contribute to the overall strategy
+    - Delete any unnecessary steps
+
+    PROTOCOL DETAILS:
+
+    1. AAVE: For lending/borrowing (lending rate 2-4%, borrowing rate 3-5%)
+    - Actions: "supply", "borrow", "withdraw", "repay"
+    - Example: {{ "protocol": "AAVE", "action": "supply", "token": "USDC", "amount": 5.0, "expected_apy": 2.5 }}
+    - Example: {{ "protocol": "AAVE", "action": "borrow", "token": "ETH", "amount": 0.005, "expected_apy": -3.5 }}
+
+    2. Ambient DEX: For swaps and liquidity (0-5% APY for liquidity)
+    - Actions: "swap", "add_liquidity", "remove_liquidity"
+    - Example swap: {{ "protocol": "Ambient", "action": "swap", "token": "USDC", "token_to": "ETH", "amount": 2.5, "expected_apy": 0 }}
+    - Example liquidity: {{ "protocol": "Ambient", "action": "add_liquidity", "pair": "ETH-USDC", "amount": 2.5, "expected_apy": 3.5 }}
+
+    3. Quill Finance: For USDQ stablecoin borrowing (5-15% APY for stability pool)
+    - Actions: "borrow_usdq", "provide_stability"
+    - Example borrow: {{ "protocol": "Quill", "action": "borrow_usdq", "token": "ETH", "amount": 0.005, "usdq_amount": 5.0, "interest_rate": 10, "expected_apy": -10.0 }}
+    - Example stability: {{ "protocol": "Quill", "action": "provide_stability", "token": "USDQ", "amount": 5.0, "expected_apy": 7.0 }}
+
+    STRATEGY VALIDATION EXAMPLES:
+
+    VALID STRATEGY EXAMPLE:
+    1. Supply 4 USDC to AAVE (APY: +2.5%)
+    2. Borrow 0.001 ETH from AAVE (APY: -3.5%)
+    3. Add 0.001 ETH liquidity to Ambient (APY: +4.0%)
+    Total APY: (2.5 + 4.0 - 3.5) = 3.0%
+
+    INVALID STRATEGY EXAMPLE (DO NOT DO THIS):
+    1. Borrow 2 USDQ using ETH collateral
+    2. Provide 5 USDQ to stability pool (IMPOSSIBLE - can't provide more than borrowed)
+
+    INVALID STRATEGY EXAMPLE (DO NOT DO THIS):
+    1. Borrow USDQ using ETH collateral 
+    2. Do nothing with the borrowed USDQ (ILLOGICAL - borrowed funds unused)
+
+    Available tokens: ETH: {eth_balance}, USDC: {usdc_balance}, SRC: {src_balance}
+
+    Return ONLY valid JSON in this exact format:
+    {{
+        "name": "{strategy_type}",
+        "risk_level": {strategy_info["risk_level"]},
+        "steps": [
+            {{
+                "protocol": "string",
+                "action": "string",
+                "token": "string",
+                "amount": number,
+                "expected_apy": number,
+                "token_to": "string",  // Only for Ambient swaps
+                "interest_rate": number,  // Only for Quill borrowing
+                "usdq_amount": number  // Only for Quill borrowing
+            }}
+        ],
+        "explanation": "string",
+        "total_expected_apy": number,
+        "risk_factors": ["string"]
+    }}
+
+    AFTER GENERATING THE STRATEGY: Verify token balance consistency by manually tracing through each step.
+    """
         
     def generate_strategy(
         self,
