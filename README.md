@@ -6,8 +6,7 @@ Bulwark is an AI-driven, automated DeFi vault system that optimizes yield strate
 [Demo]() | [Prototype App](https://bulwark-scroll.vercel.app/) | [Slide Deck]() | [AI Agent Architecture]() | [Contribution Guide]() | [Design Files]() | [UI Mockups]()
 
 ---
-
-## The Team
+## Team
 Bulwark is built by a team of experienced blockchain developers, AI engineers, and DeFi strategists with backgrounds in smart contract development, machine learning, and financial modeling.
 
 ![12  team](https://github.com/user-attachments/assets/5800e7c6-3353-4f94-94ca-d19b74b3d59e)
@@ -33,6 +32,8 @@ Bulwark automates DeFi portfolio management with AI-driven strategy generation a
 2. **One-Click Execution** – Smart contract batch execution ensures efficient capital deployment across protocols.
 3. **Real-Time Monitoring & Alerts** – Automated liquidation risk monitoring and yield rebalancing keep portfolios optimized.
 4. **Intelligent Rebalancing** – AI continuously evaluates and suggests better risk-adjusted strategies.
+
+![7  user flow (1)](https://github.com/user-attachments/assets/4e959457-7a98-4ec0-94ef-10f4f30256dc)
 
 ---
 
@@ -80,5 +81,11 @@ Bulwark combines AI, DeFi automation, and risk-aware strategy execution in a sea
 
 ---
 
-## Contributing
-We welcome contributions! See [CONTRIBUTE.md]() for guidelines.
+## Smart Contracts
+[SimpleAaveStrategy.sol](https://scrollscan.com/address/0xbCfac93bbC5F93c37f3743792A372e9fe3979Ea6)
+
+[StrategyExecutor.sol](https://scrollscan.com/address/0xc8c34998f0aE64989Cc43f3f3b657d5f050235F4)
+
+---
+
+Built in public with ♥ during Open Scroll Hackathon 2025
