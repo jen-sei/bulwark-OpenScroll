@@ -100,13 +100,9 @@ class StrategyGenerator:
             }
         }
         return json.dumps(context, indent=2)
-        
-    # Add this method to your ai/strategy_generator.py
-
-# ai/strategy_generator.py - updated _build_prompt function
 
     def _build_prompt(self, context: str, strategy_type: str) -> str:
-        """Build the prompt for strategy generation with improved logic and APY constraints
+        """Build the prompt for strategy generation
         
         Args:
             context: JSON string with wallet and market data
@@ -125,28 +121,22 @@ class StrategyGenerator:
             usdc_balance = "unknown"
             src_balance = "unknown"
         
-        # Strategy descriptions and risk levels based on frontend with strictly bounded APY ranges
+        # Strategy descriptions and risk levels based on frontend
         strategy_descriptions = {
             "Anchor": {
-                "description": "Conservative strategy focused on steady growth over time with minimal volatility.",
+                "description": "Conservative strategy focused on steady growth over time. Should prioritize low-risk activities with minimal volatility.",
                 "risk_level": 1,
-                "min_apy": 2.0,
-                "max_apy": 5.0,
-                "target_apy": "3.5%"
+                "apy_range": "2-5%"
             },
             "Zenith": {
                 "description": "Balanced performance strategy that creates moderate leverage while maintaining reasonable risk levels.",
                 "risk_level": 3,
-                "min_apy": 5.0, 
-                "max_apy": 15.0,
-                "target_apy": "8%"
+                "apy_range": "5-15%"
             },
             "Wildcard": {
                 "description": "Aggressive strategy for risk-takers that maximizes yield through leveraging and higher-risk positions.",
                 "risk_level": 5,
-                "min_apy": 15.0,
-                "max_apy": 30.0,
-                "target_apy": "20%"
+                "apy_range": "15-30%"
             }
         }
         
@@ -156,66 +146,54 @@ class StrategyGenerator:
         return f"""You are an AI-powered DeFi strategy generator for the Scroll network. Based on the following wallet and market data:
     {context}
 
-    I need you to generate a {strategy_type} strategy ({strategy_info["description"]})
-    This should be a risk level {strategy_info["risk_level"]} strategy with a total expected APY between {strategy_info["min_apy"]}% and {strategy_info["max_apy"]}%.
+    Generate a {strategy_type} strategy ({strategy_info["description"]})
+    This should be a risk level {strategy_info["risk_level"]} strategy with an expected APY range of {strategy_info["apy_range"]}.
 
-    IMPORTANT: You MUST follow these exact rules when generating strategies:
+    You can use AAVE for lending/borrowing, Ambient DEX for swapping tokens or providing liquidity, and Quill Finance for borrowing USDQ stablecoin against collateral.
 
-    1. TOKEN BALANCE TRACKING: 
-    - Track all token balances precisely at each step
-    - NEVER suggest actions that would use more tokens than available
-    - Before adding a step, verify you have sufficient balance for that token
+    IMPORTANT RULES:
+    1. CREATE A UNIQUE STRATEGY: Be creative and insightful - don't just give generic strategies.
+    2. TRACK TOKEN BALANCES: Carefully track available balances through all steps.
+    3. LOGICAL FLOW: Ensure each step builds upon previous ones in a logical way.
+    4. FOLLOW-THROUGH: If borrowing tokens (especially USDQ), always use them productively in later steps.
+    5. DETAILED EXPLANATIONS: Provide clear, informative explanations that educate users on the strategy's logic.
+    6. REALISTIC APYs: For {strategy_type}, total APY should be in the {strategy_info["apy_range"]} range.
 
-    2. LOGICAL TOKEN FLOW:
-    - If borrowing from AAVE, always USE the borrowed tokens in a later step
-    - If borrowing USDQ from Quill, ALWAYS have a follow-up step using the borrowed USDQ
-    - NEVER provide more USDQ to stability pool than was borrowed or is available
+    Protocol-Specific Guidelines:
+    - AAVE: 
+    * Supply APYs typically range from 1-4%
+    * Borrow rates are typically negative 2-5%
+    * Example: {{ "protocol": "AAVE", "action": "supply", "token": "USDC", "amount": 5.0, "expected_apy": 2.2 }}
 
-    3. APY CONSTRAINTS:
-    - Total strategy APY must be between {strategy_info["min_apy"]}% and {strategy_info["max_apy"]}%
-    - Individual step APYs should be realistic for the action
-    
-    4. STEP LIMITS:
-    - Include at most 3-4 steps for clarity
-    - Each step must directly contribute to the overall strategy
-    - Delete any unnecessary steps
+    - Ambient DEX:
+    * Swaps have 0% APY (they're conversions, not yield-generating)
+    * Liquidity provision typically yields 2-7% APY
+    * Example: {{ "protocol": "Ambient", "action": "add_liquidity", "pair": "ETH-USDC", "amount": 2.5, "expected_apy": 4.0 }}
 
-    PROTOCOL DETAILS:
+    - Quill Finance:
+    * Borrowing USDQ has negative APY (cost of borrowing)
+    * Interest rates range from 6% to 15%
+    * Stability pool deposits yield 5-15% APY
+    * When borrowing USDQ, ALWAYS specify what you'll do with it in a following step
+    * Example: {{ "protocol": "Quill", "action": "borrow_usdq", "token": "ETH", "amount": 0.005, "usdq_amount": 5.0, "interest_rate": 10, "expected_apy": -10.0 }}
 
-    1. AAVE: For lending/borrowing (lending rate 2-4%, borrowing rate 3-5%)
-    - Actions: "supply", "borrow", "withdraw", "repay"
-    - Example: {{ "protocol": "AAVE", "action": "supply", "token": "USDC", "amount": 5.0, "expected_apy": 2.5 }}
-    - Example: {{ "protocol": "AAVE", "action": "borrow", "token": "ETH", "amount": 0.005, "expected_apy": -3.5 }}
+    Available Balances: ETH: {eth_balance}, USDC: {usdc_balance}, SRC: {src_balance}
 
-    2. Ambient DEX: For swaps and liquidity (0-5% APY for liquidity)
-    - Actions: "swap", "add_liquidity", "remove_liquidity"
-    - Example swap: {{ "protocol": "Ambient", "action": "swap", "token": "USDC", "token_to": "ETH", "amount": 2.5, "expected_apy": 0 }}
-    - Example liquidity: {{ "protocol": "Ambient", "action": "add_liquidity", "pair": "ETH-USDC", "amount": 2.5, "expected_apy": 3.5 }}
+    Examples of valid strategy structures:
+    1. Simple conservative (Anchor):
+    - Supply a single asset to AAVE for stable, low-risk returns.
 
-    3. Quill Finance: For USDQ stablecoin borrowing (5-15% APY for stability pool)
-    - Actions: "borrow_usdq", "provide_stability"
-    - Example borrow: {{ "protocol": "Quill", "action": "borrow_usdq", "token": "ETH", "amount": 0.005, "usdq_amount": 5.0, "interest_rate": 10, "expected_apy": -10.0 }}
-    - Example stability: {{ "protocol": "Quill", "action": "provide_stability", "token": "USDQ", "amount": 5.0, "expected_apy": 7.0 }}
+    2. Balanced (Zenith):
+    - Supply an asset to AAVE, borrow against it, and use borrowed funds productively.
+    - Or use Quill to borrow USDQ against collateral, then provide it to the stability pool.
 
-    STRATEGY VALIDATION EXAMPLES:
+    3. Aggressive (Wildcard):
+    - Create leveraged positions using multiple protocols.
+    - Maximize yield through more complex interactions between protocols.
 
-    VALID STRATEGY EXAMPLE:
-    1. Supply 4 USDC to AAVE (APY: +2.5%)
-    2. Borrow 0.001 ETH from AAVE (APY: -3.5%)
-    3. Add 0.001 ETH liquidity to Ambient (APY: +4.0%)
-    Total APY: (2.5 + 4.0 - 3.5) = 3.0%
+    Your strategy explanation should be insightful and educational, explaining why the steps work together and the risks involved.
 
-    INVALID STRATEGY EXAMPLE (DO NOT DO THIS):
-    1. Borrow 2 USDQ using ETH collateral
-    2. Provide 5 USDQ to stability pool (IMPOSSIBLE - can't provide more than borrowed)
-
-    INVALID STRATEGY EXAMPLE (DO NOT DO THIS):
-    1. Borrow USDQ using ETH collateral 
-    2. Do nothing with the borrowed USDQ (ILLOGICAL - borrowed funds unused)
-
-    Available tokens: ETH: {eth_balance}, USDC: {usdc_balance}, SRC: {src_balance}
-
-    Return ONLY valid JSON in this exact format:
+    Return the strategy in the following JSON format:
     {{
         "name": "{strategy_type}",
         "risk_level": {strategy_info["risk_level"]},
@@ -224,19 +202,17 @@ class StrategyGenerator:
                 "protocol": "string",
                 "action": "string",
                 "token": "string",
-                "amount": number,
-                "expected_apy": number,
-                "token_to": "string",  // Only for Ambient swaps
-                "interest_rate": number,  // Only for Quill borrowing
-                "usdq_amount": number  // Only for Quill borrowing
+                "amount": "number",
+                "expected_apy": "number",
+                "token_to": "string",  // Only required for Ambient swaps
+                "interest_rate": "number",  // Only required for Quill borrowing
+                "usdq_amount": "number"  // Only required for Quill borrowing
             }}
         ],
         "explanation": "string",
-        "total_expected_apy": number,
+        "total_expected_apy": "number",
         "risk_factors": ["string"]
     }}
-
-    AFTER GENERATING THE STRATEGY: Verify token balance consistency by manually tracing through each step.
     """
         
     def generate_strategy(
@@ -644,278 +620,92 @@ class StrategyGenerator:
         return prices.get(token, 1.0)
     
     def validate_strategy_logic(self, strategy_data: Dict, wallet_balances: Dict[str, float]) -> Dict:
-        """Validate strategy logic and ensure all steps are executable"""
-        # Copy wallet balances for tracking
+        """Validate key logical aspects of the strategy without completely changing it"""
+        # Make a copy of wallet balances for tracking
         available_balances = wallet_balances.copy()
         
-        # Track borrowed/minted assets
-        borrowed_assets = {}
+        # Track borrowed USDQ
+        borrowed_usdq = 0
+        used_usdq = 0
         
-        # Track if we've borrowed USDQ and what we've done with it
-        usdq_borrowed = 0
-        usdq_used = 0
+        # Track modifications needed
+        steps_to_modify = []
+        steps_to_remove = []
+        steps_to_add = []
         
-        # List for valid steps
-        valid_steps = []
-        validation_errors = []
-        
+        # Check each step for logical consistency
         for i, step in enumerate(strategy_data.get("steps", [])):
-            protocol = step.get("protocol")
-            action = step.get("action")
-            token = step.get("token")
+            protocol = step.get("protocol", "")
+            action = step.get("action", "")
+            token = step.get("token", "")
             amount = float(step.get("amount", 0))
-            expected_apy = float(step.get("expected_apy", 0))
             
-            # Check APY ranges based on strategy risk level
-            strategy_type = strategy_data.get("name")
-            if strategy_type == "Anchor" and (expected_apy < 0 or expected_apy > 5):
-                step["expected_apy"] = min(5.0, max(0.0, expected_apy))
-            elif strategy_type == "Zenith" and (expected_apy < 0 or expected_apy > 15):
-                step["expected_apy"] = min(15.0, max(0.0, expected_apy))
-            elif strategy_type == "Wildcard" and (expected_apy < 0 or expected_apy > 30):
-                step["expected_apy"] = min(30.0, max(0.0, expected_apy))
-            
-            # Process AAVE deposit/borrow actions
-            if protocol == "AAVE":
-                if action == "supply":
-                    # Check if we have enough balance
-                    if token not in available_balances or available_balances[token] < amount:
-                        error = f"Insufficient {token} balance for supply step ({available_balances.get(token, 0)} < {amount})"
-                        validation_errors.append(error)
-                        continue
+            # Check if we have enough balance for supply/swap actions
+            if action in ["supply", "add_liquidity", "swap"] and (token not in available_balances or available_balances[token] < amount):
+                # Instead of removing, adjust the amount to what's available
+                available_amount = available_balances.get(token, 0) * 0.95  # Use 95% of what's available
+                if available_amount > 0:
+                    steps_to_modify.append((i, {"amount": available_amount}))
+                    amount = available_amount
+                else:
+                    steps_to_remove.append(i)
+                    continue
                     
-                    # Update available balance
-                    available_balances[token] -= amount
-                    valid_steps.append(step)
-                    
-                elif action == "borrow":
-                    # Borrowing creates new tokens
-                    if token not in available_balances:
-                        available_balances[token] = 0
-                    
-                    # Record that we've borrowed this token
-                    if token not in borrowed_assets:
-                        borrowed_assets[token] = 0
-                    borrowed_assets[token] += amount
-                    
-                    # Add to available balance
-                    available_balances[token] += amount
-                    valid_steps.append(step)
-            
-            # Process Ambient DEX actions
-            elif protocol == "Ambient":
-                if action == "swap":
-                    token_to = step.get("token_to")
-                    
-                    # Check if we have enough of source token
-                    if token not in available_balances or available_balances[token] < amount:
-                        error = f"Insufficient {token} balance for swap step ({available_balances.get(token, 0)} < {amount})"
-                        validation_errors.append(error)
-                        continue
-                    
-                    # Estimate output amount (simplified)
-                    output_amount = amount * self.get_token_price(token) / self.get_token_price(token_to)
-                    
-                    # Update balances
-                    available_balances[token] -= amount
-                    if token_to not in available_balances:
-                        available_balances[token_to] = 0
-                    available_balances[token_to] += output_amount
-                    valid_steps.append(step)
-                    
-                elif action == "add_liquidity":
-                    # Check if we have enough balance
-                    if token not in available_balances or available_balances[token] < amount:
-                        error = f"Insufficient {token} balance for add_liquidity step ({available_balances.get(token, 0)} < {amount})"
-                        validation_errors.append(error)
-                        continue
-                    
-                    # Update available balance
-                    available_balances[token] -= amount
-                    valid_steps.append(step)
-            
-            # Process Quill actions
-            elif protocol == "Quill":
-                if action == "borrow_usdq":
-                    usdq_amount = float(step.get("usdq_amount", 0))
-                    
-                    # Check if we have enough collateral
-                    if token not in available_balances or available_balances[token] < amount:
-                        error = f"Insufficient {token} collateral for borrow_usdq step ({available_balances.get(token, 0)} < {amount})"
-                        validation_errors.append(error)
-                        continue
-                    
-                    # Update balances
-                    available_balances[token] -= amount
-                    if "USDQ" not in available_balances:
-                        available_balances["USDQ"] = 0
-                    available_balances["USDQ"] += usdq_amount
-                    usdq_borrowed += usdq_amount
-                    valid_steps.append(step)
-                    
-                elif action == "provide_stability":
-                    if token != "USDQ":
-                        error = f"Only USDQ can be provided to stability pool, not {token}"
-                        validation_errors.append(error)
-                        continue
-                    
-                    # Check if we have enough USDQ
-                    if "USDQ" not in available_balances or available_balances["USDQ"] < amount:
-                        error = f"Insufficient USDQ balance for provide_stability step ({available_balances.get('USDQ', 0)} < {amount})"
-                        validation_errors.append(error)
-                        continue
-                    
-                    # Update available balance
-                    available_balances["USDQ"] -= amount
-                    usdq_used += amount
-                    valid_steps.append(step)
+            # Update available balances
+            if action in ["supply", "add_liquidity", "swap"]:
+                available_balances[token] = available_balances.get(token, 0) - amount
+            elif action == "borrow":
+                available_balances[token] = available_balances.get(token, 0) + amount
+            elif action == "borrow_usdq":
+                usdq_amount = float(step.get("usdq_amount", 0))
+                available_balances[token] = available_balances.get(token, 0) - amount
+                available_balances["USDQ"] = available_balances.get("USDQ", 0) + usdq_amount
+                borrowed_usdq += usdq_amount
+            elif action == "provide_stability" and token == "USDQ":
+                used_usdq += amount
+                available_balances["USDQ"] = available_balances.get("USDQ", 0) - amount
         
-        # Check if we've borrowed USDQ but haven't used it all
-        if usdq_borrowed > 0 and usdq_used < usdq_borrowed * 0.9:  # Allow 10% unused
-            error = f"Strategy borrows {usdq_borrowed} USDQ but only uses {usdq_used}"
-            validation_errors.append(error)
-            
-            # Fix: Add a step to use remaining USDQ in stability pool
-            if usdq_borrowed > usdq_used and available_balances.get("USDQ", 0) > 0:
-                remaining_usdq = min(usdq_borrowed - usdq_used, available_balances["USDQ"])
-                if remaining_usdq > 0:
-                    valid_steps.append({
-                        "protocol": "Quill",
-                        "action": "provide_stability",
-                        "token": "USDQ",
-                        "amount": remaining_usdq,
-                        "expected_apy": 5.0  # Default stability APY
-                    })
-                    available_balances["USDQ"] -= remaining_usdq
+        # Check if we borrowed USDQ but didn't use all of it
+        if borrowed_usdq > 0 and used_usdq < borrowed_usdq * 0.8:  # Allow 20% unused
+            remaining_usdq = borrowed_usdq - used_usdq
+            # Add a step to use the remaining USDQ in stability pool
+            steps_to_add.append({
+                "protocol": "Quill",
+                "action": "provide_stability",
+                "token": "USDQ",
+                "amount": remaining_usdq,
+                "expected_apy": 7.0  # Reasonable stability pool APY
+            })
         
-        # Recalculate total expected APY
-        if valid_steps:
-            total_apy = sum(abs(step.get("expected_apy", 0)) if step.get("expected_apy", 0) < 0 else step.get("expected_apy", 0) 
-                            for step in valid_steps)
-            avg_apy = total_apy / len(valid_steps)
-            
-            # Adjust to strategy tier APY ranges
-            if strategy_data.get("name") == "Anchor":
-                avg_apy = min(5.0, max(2.0, avg_apy))
-            elif strategy_data.get("name") == "Zenith":
-                avg_apy = min(15.0, max(5.0, avg_apy))
-            elif strategy_data.get("name") == "Wildcard":
-                avg_apy = min(30.0, max(15.0, avg_apy))
-            
-            strategy_data["total_expected_apy"] = avg_apy
+        # Apply modifications
+        for i, changes in steps_to_modify:
+            for key, value in changes.items():
+                strategy_data["steps"][i][key] = value
+        
+        # Remove steps (in reverse order to maintain indices)
+        for i in sorted(steps_to_remove, reverse=True):
+            if i < len(strategy_data["steps"]):
+                strategy_data["steps"].pop(i)
+        
+        # Add new steps
+        strategy_data["steps"].extend(steps_to_add)
+        
+        # Verify APY range based on strategy type
+        total_apy = 0
+        for step in strategy_data["steps"]:
+            apy = float(step.get("expected_apy", 0))
+            total_apy += abs(apy) if apy < 0 else apy
+        
+        avg_apy = total_apy / max(1, len(strategy_data["steps"]))
+        
+        # Gently adjust APY to appropriate range if way off
+        if strategy_data["name"] == "Anchor" and (avg_apy < 1.0 or avg_apy > 6.0):
+            strategy_data["total_expected_apy"] = max(2.0, min(5.0, avg_apy))
+        elif strategy_data["name"] == "Zenith" and (avg_apy < 4.0 or avg_apy > 20.0):
+            strategy_data["total_expected_apy"] = max(5.0, min(15.0, avg_apy))
+        elif strategy_data["name"] == "Wildcard" and (avg_apy < 10.0 or avg_apy > 40.0):
+            strategy_data["total_expected_apy"] = max(15.0, min(30.0, avg_apy))
         else:
-            # Default to minimum APY for the strategy tier
-            if strategy_data.get("name") == "Anchor":
-                strategy_data["total_expected_apy"] = 2.0
-            elif strategy_data.get("name") == "Zenith":
-                strategy_data["total_expected_apy"] = 5.0
-            elif strategy_data.get("name") == "Wildcard":
-                strategy_data["total_expected_apy"] = 15.0
-        
-        # Update steps in strategy data
-        strategy_data["steps"] = valid_steps
-        
-        # If we have validation errors or no valid steps, create a fallback strategy
-        if not valid_steps or validation_errors:
-            print(f"Strategy validation errors: {validation_errors}")
-            
-            # Find the token with the highest balance for a fallback strategy
-            best_token = max(wallet_balances.items(), key=lambda x: x[1] * self.get_token_price(x[0]))[0]
-            conservative_amount = wallet_balances[best_token] * 0.9  # Use 90% of available balance
-            
-            if strategy_data.get("name") == "Anchor":
-                # Simple supply strategy for Anchor
-                strategy_data["steps"] = [{
-                    "protocol": "AAVE",
-                    "action": "supply",
-                    "token": best_token,
-                    "amount": conservative_amount,
-                    "expected_apy": 2.5
-                }]
-                strategy_data["total_expected_apy"] = 2.5
-                strategy_data["explanation"] = f"A conservative strategy supplying {best_token} to AAVE for reliable yields."
-                strategy_data["risk_factors"] = ["Minimal market risk exposure", "Single asset deposit reduces complexity"]
-                
-            elif strategy_data.get("name") == "Zenith":
-                # Simple AAVE supply + borrow strategy for Zenith
-                supply_amount = conservative_amount
-                borrow_pct = 0.4  # 40% loan-to-value
-                
-                if best_token == "USDC":
-                    borrow_token = "ETH"
-                else:
-                    borrow_token = "USDC"
-                
-                borrow_amount = (supply_amount * self.get_token_price(best_token) * borrow_pct) / self.get_token_price(borrow_token)
-                
-                strategy_data["steps"] = [
-                    {
-                        "protocol": "AAVE",
-                        "action": "supply",
-                        "token": best_token,
-                        "amount": supply_amount,
-                        "expected_apy": 2.5
-                    },
-                    {
-                        "protocol": "AAVE",
-                        "action": "borrow",
-                        "token": borrow_token,
-                        "amount": borrow_amount,
-                        "expected_apy": -3.5
-                    },
-                    {
-                        "protocol": "Ambient",
-                        "action": "add_liquidity",
-                        "token": borrow_token,
-                        "amount": borrow_amount,
-                        "expected_apy": 6.0
-                    }
-                ]
-                strategy_data["total_expected_apy"] = 5.0
-                strategy_data["explanation"] = f"A balanced strategy supplying {best_token} to AAVE, borrowing {borrow_token}, and providing liquidity for modest yields."
-                strategy_data["risk_factors"] = ["Moderate market risk exposure", "Requires managing collateral ratio"]
-                
-            elif strategy_data.get("name") == "Wildcard":
-                # More aggressive Quill strategy for Wildcard
-                collateral_token = "ETH" if "ETH" in wallet_balances and wallet_balances["ETH"] > 0 else "SRC"
-                collateral_amount = wallet_balances.get(collateral_token, 0) * 0.9
-                
-                # Calculate reasonable USDQ amount based on collateral value
-                usdq_amount = collateral_amount * self.get_token_price(collateral_token) * 0.7
-                
-                if collateral_amount > 0:
-                    strategy_data["steps"] = [
-                        {
-                            "protocol": "Quill",
-                            "action": "borrow_usdq",
-                            "token": collateral_token,
-                            "amount": collateral_amount,
-                            "usdq_amount": usdq_amount,
-                            "interest_rate": 15,
-                            "expected_apy": -15.0
-                        },
-                        {
-                            "protocol": "Quill",
-                            "action": "provide_stability",
-                            "token": "USDQ",
-                            "amount": usdq_amount,
-                            "expected_apy": 30.0
-                        }
-                    ]
-                    strategy_data["total_expected_apy"] = 15.0
-                    strategy_data["explanation"] = f"A higher-risk strategy leveraging {collateral_token} to borrow USDQ and earn through the stability pool."
-                    strategy_data["risk_factors"] = ["Higher liquidation risk", "Requires active monitoring of collateral value"]
-                else:
-                    # Fallback to AAVE strategy if no suitable collateral
-                    strategy_data["steps"] = [{
-                        "protocol": "AAVE",
-                        "action": "supply",
-                        "token": best_token,
-                        "amount": conservative_amount,
-                        "expected_apy": 15.0
-                    }]
-                    strategy_data["total_expected_apy"] = 15.0
-                    strategy_data["explanation"] = f"A simplified high-yield strategy for maximum returns on {best_token}."
-                    strategy_data["risk_factors"] = ["Yield varies with market conditions"]
+            strategy_data["total_expected_apy"] = avg_apy
         
         return strategy_data
