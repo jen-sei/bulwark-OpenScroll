@@ -59,25 +59,11 @@ const StrategySelector: React.FC = () => {
         setIsLoading(false);
       }
     };
-    // fetchStrategies();
+    fetchStrategies();
 
-    setStrategies(selectedStrategies);
-    setIsLoading(false);
+    // setStrategies(selectedStrategies);
+    // setIsLoading(false);
   }, [address, balances, isBalancesLoading]);
-
-  const handleExecuteStrategy = () => {
-    const strategy = strategies.find(s => s.risk_level === selectedStrategy);
-    if (strategy) {
-      setIsExecuting(true);
-      setExecutedStrategy(strategy);
-
-      // Simulate execution (replace with actual execution logic)
-      setTimeout(() => {
-        setIsExecuting(false);
-        setIsPopupOpen(true);
-      }, 2000);
-    }
-  };
 
   if (isLoading) {
     return (
