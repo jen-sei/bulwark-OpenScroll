@@ -14,6 +14,7 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')
 from ai.strategy_generator import StrategyGenerator
 from ai.services.aave_service import AaveService
 from ai.services.ambient_service import AmbientService
+from ai.services.quill_service import QuillService
 from ai.services.wallet_service import WalletService
 
 app = FastAPI(title="Bulwark API", description="AI-powered DeFi strategies for Scroll network")
@@ -43,6 +44,9 @@ def get_aave_service():
 
 def get_ambient_service():
     return AmbientService()
+
+def get_quill_service():
+    return QuillService()
 
 def get_wallet_service():
     return WalletService()
@@ -84,6 +88,53 @@ def get_ambient_market_data(ambient_service: AmbientService = Depends(get_ambien
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error fetching Ambient market data: {str(e)}")
 
+@app.get("/api/quill-market-data")
+def get_quill_market_data(quill_service: QuillService = Depends(get_quill_service)):
+    """Get current market data from Quill Finance"""
+    try:
+        market_data = quill_service.get_market_data()
+        return {
+            "success": True,
+            "data": market_data
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error fetching Quill market data: {str(e)}")
+
+@app.get("/api/quill-positions/{address}")
+def get_quill_positions(address: str, quill_service: QuillService = Depends(get_quill_service)):
+    """Get Quill positions for a specific wallet"""
+    try:
+        positions = quill_service.get_user_positions(address)
+        return {
+            "success": True,
+            "data": positions
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error fetching Quill positions: {str(e)}")
+
+@app.get("/api/quill-max-borrowable")
+def calculate_max_borrowable(
+    collateral_token: str,
+    amount: float,
+    quill_service: QuillService = Depends(get_quill_service)
+):
+    """Calculate the maximum USDQ borrowable for a given collateral amount"""
+    try:
+        max_borrowable = quill_service.get_max_borrowable_amount(
+            collateral_token, 
+            Decimal(str(amount))
+        )
+        return {
+            "success": True,
+            "data": {
+                "collateral_token": collateral_token,
+                "collateral_amount": amount,
+                "max_borrowable_usdq": float(max_borrowable)
+            }
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error calculating max borrowable amount: {str(e)}")
+
 @app.get("/api/swap-impact")
 def calculate_swap_impact(
     from_token: str,
@@ -123,6 +174,7 @@ def generate_strategies(
     strategy_generator: StrategyGenerator = Depends(get_strategy_generator),
     aave_service: AaveService = Depends(get_aave_service),
     ambient_service: AmbientService = Depends(get_ambient_service),
+    quill_service: QuillService = Depends(get_quill_service),
     wallet_service: WalletService = Depends(get_wallet_service)
 ):
     """Generate optimized DeFi strategies based on wallet holdings"""
@@ -206,13 +258,55 @@ def generate_strategies(
                 },
                 "swap_fees": 0.003
             }
+            
+        # Fetch real market data from Quill
+        try:
+            quill_market_data = quill_service.get_market_data()
+            print("Using real market data from Quill")
+        except Exception as e:
+            print(f"Error fetching market data from Quill: {e}, using fallback data")
+            quill_market_data = {
+                "protocol": "Quill",
+                "collaterals": {
+                    "ETH": {
+                        "price_usd": 2000.0,
+                        "min_collateral_ratio": 1.1
+                    },
+                    "SRC": {
+                        "price_usd": 10.0,
+                        "min_collateral_ratio": 1.15
+                    }
+                },
+                "stability_pools": {
+                    "ETH": {
+                        "total_deposits_usdq": 1000000,
+                        "pool_collateral": 500,
+                        "estimated_apr": 5.0
+                    },
+                    "SRC": {
+                        "total_deposits_usdq": 500000,
+                        "pool_collateral": 50000,
+                        "estimated_apr": 7.0
+                    }
+                },
+                "interest_rates": {
+                    "min": 6.0,
+                    "max": 350.0,
+                    "recommended": {
+                        "low_risk": 6.0,
+                        "medium_risk": 10.0,
+                        "high_risk": 15.0
+                    }
+                }
+            }
         
         # Combine market data
         combined_market_data = {
             "rates": aave_market_data.get("rates", {}),
             "tvl": aave_market_data.get("tvl", {}),
             "conditions": aave_market_data.get("conditions", "stable"),
-            "dex": ambient_market_data
+            "dex": ambient_market_data,
+            "quill": quill_market_data
         }
         
         # Get real risk metrics or use fallback
