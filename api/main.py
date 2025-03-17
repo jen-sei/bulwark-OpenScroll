@@ -13,6 +13,7 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')
 
 from ai.strategy_generator import StrategyGenerator
 from ai.services.aave_service import AaveService
+from ai.services.ambient_service import AmbientService
 from ai.services.wallet_service import WalletService
 
 app = FastAPI(title="Bulwark API", description="AI-powered DeFi strategies for Scroll network")
@@ -39,6 +40,9 @@ def get_strategy_generator():
 
 def get_aave_service():
     return AaveService()
+
+def get_ambient_service():
+    return AmbientService()
 
 def get_wallet_service():
     return WalletService()
@@ -68,6 +72,39 @@ def get_market_data(aave_service: AaveService = Depends(get_aave_service)):
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error fetching market data: {str(e)}")
 
+@app.get("/api/ambient-market-data")
+def get_ambient_market_data(ambient_service: AmbientService = Depends(get_ambient_service)):
+    """Get current market data from Ambient DEX"""
+    try:
+        market_data = ambient_service.get_market_data()
+        return {
+            "success": True,
+            "data": market_data
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error fetching Ambient market data: {str(e)}")
+
+@app.get("/api/swap-impact")
+def calculate_swap_impact(
+    from_token: str,
+    to_token: str,
+    amount: float,
+    ambient_service: AmbientService = Depends(get_ambient_service)
+):
+    """Calculate the impact of swapping tokens"""
+    try:
+        impact = ambient_service.calculate_swap_impact(
+            from_token, 
+            to_token, 
+            Decimal(str(amount))
+        )
+        return {
+            "success": True,
+            "data": impact
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error calculating swap impact: {str(e)}")
+
 @app.get("/api/wallet/{address}")
 def analyze_wallet(address: str, wallet_service: WalletService = Depends(get_wallet_service)):
     """Analyze wallet contents"""
@@ -85,6 +122,7 @@ def generate_strategies(
     request: WalletRequest,
     strategy_generator: StrategyGenerator = Depends(get_strategy_generator),
     aave_service: AaveService = Depends(get_aave_service),
+    ambient_service: AmbientService = Depends(get_ambient_service),
     wallet_service: WalletService = Depends(get_wallet_service)
 ):
     """Generate optimized DeFi strategies based on wallet holdings"""
@@ -112,12 +150,12 @@ def generate_strategies(
         
         # Fetch real market data from AAVE
         try:
-            market_data = aave_service.get_market_data()
+            aave_market_data = aave_service.get_market_data()
             print("Using real market data from AAVE")
         except Exception as e:
             print(f"Error fetching market data from AAVE: {e}, using fallback data")
             # Fallback to hardcoded data if AAVE fetch fails
-            market_data = {
+            aave_market_data = {
                 "rates": {
                     "AAVE": {
                         "supply_apy": {
@@ -138,6 +176,45 @@ def generate_strategies(
                 "conditions": "stable"
             }
         
+        # Fetch real market data from Ambient
+        try:
+            ambient_market_data = ambient_service.get_market_data()
+            print("Using real market data from Ambient")
+        except Exception as e:
+            print(f"Error fetching market data from Ambient: {e}, using fallback data")
+            ambient_market_data = {
+                "dex": "Ambient",
+                "pools": {
+                    "ETH-USDC": {
+                        "price": 2000.0,
+                        "total_liquidity": 1000000,
+                        "volume_24h": 1000000,
+                        "fee": 0.003
+                    },
+                    "ETH-SRC": {
+                        "price": 0.005,
+                        "total_liquidity": 1000000,
+                        "volume_24h": 1000000,
+                        "fee": 0.003
+                    },
+                    "USDC-SRC": {
+                        "price": 0.01,
+                        "total_liquidity": 1000000,
+                        "volume_24h": 1000000,
+                        "fee": 0.003
+                    }
+                },
+                "swap_fees": 0.003
+            }
+        
+        # Combine market data
+        combined_market_data = {
+            "rates": aave_market_data.get("rates", {}),
+            "tvl": aave_market_data.get("tvl", {}),
+            "conditions": aave_market_data.get("conditions", "stable"),
+            "dex": ambient_market_data
+        }
+        
         # Get real risk metrics or use fallback
         try:
             risk_metrics = aave_service.get_user_risk_metrics(request.address)
@@ -153,7 +230,7 @@ def generate_strategies(
         # Generate strategies
         strategies_json = strategy_generator.generate_strategies_json(
             sanitized_balances,
-            market_data,
+            combined_market_data,
             risk_metrics
         )
         
