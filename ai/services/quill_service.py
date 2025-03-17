@@ -285,6 +285,18 @@ class QuillService:
             # Maximum borrowable is (collateral_value / min_ratio) - liquidation_reserve
             max_borrowable = (collateral_value_usd / min_ratio) - liquidation_reserve
             
+            # For smaller amounts, we need to be more conservative to avoid negative values
+            if max_borrowable <= 0:
+                # For smaller amounts, just set a small proportion of the collateral value
+                max_borrowable = collateral_value_usd * Decimal("0.7")  # 70% of collateral value
+            
+            # Apply additional scaling for SRC due to higher volatility
+            if collateral == "SRC":
+                max_borrowable = max_borrowable * Decimal("0.5")  # More conservative with SRC
+            
+            # For hackathon testing, cap the maximum USDQ at 50 to avoid unreasonable values
+            max_borrowable = min(max_borrowable, Decimal("50"))
+            
             # Ensure we don't return a negative value
             return max(Decimal("0"), max_borrowable)
         except Exception as e:
