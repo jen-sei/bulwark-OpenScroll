@@ -3,7 +3,7 @@
 ![github banner](https://github.com/user-attachments/assets/8af1707f-605b-4634-90fb-0df0039963dd)
 Bulwark is an AI-driven, automated DeFi vault system that optimizes yield strategies across lending, DEX, and yield protocols while ensuring risk-adjusted portfolio management.
 
-[Demo]() | [Prototype App](https://bulwark-scroll.vercel.app/) | [Slide Deck]() | [AI Agent Architecture]() | [Contribution Guide](https://github.com/jen-sei/bulwark-OpenScroll/blob/main/docs/contribution-guide.md) | [Design Files](https://github.com/jen-sei/bulwark-OpenScroll/blob/main/docs/design-files.md) | [UI Mockups]()
+[Demo]() | [Prototype App](https://bulwark-scroll.vercel.app/) | [Slide Deck]() | [AI Agent Architecture]() | [Contribution Guide](https://github.com/jen-sei/bulwark-OpenScroll/blob/main/docs/contribution-guide.md) | [Design Files](https://github.com/jen-sei/bulwark-OpenScroll/blob/main/docs/design-files.md) | [UI Mockups](https://github.com/jen-sei/bulwark-OpenScroll/blob/main/docs/ui-mockups.md)
 
 ---
 ## Team
