@@ -1,0 +1,131 @@
+{
+    "strategies": [
+        {
+            "name": "Anchor",
+            "risk_level": 1,
+            "steps": [
+                {
+                    "protocol": "AAVE",
+                    "action": "supply",
+                    "token": "USDC",
+                    "amount": 5.0,
+                    "expected_apy": 2.5
+                },
+                {
+                    "protocol": "Ambient",
+                    "action": "add_liquidity",
+                    "token": "USDC",
+                    "amount": 0.044992,
+                    "expected_apy": 3.2,
+                    "pair": "USDC-SRC"
+                }
+            ],
+            "explanation": "This conservative strategy focuses on stable yield generation with minimal risk. By supplying USDC to AAVE, you earn reliable interest from the lending protocol. Additionally, a small portion of your USDC is allocated to providing liquidity on Ambient DEX for the USDC-SRC pair, which offers slightly higher returns while maintaining a conservative risk profile. This combination provides steady growth while preserving capital.",
+            "total_expected_apy": 2.85,
+            "risk_factors": [
+                "Market fluctuations can affect liquidity provision returns",
+                "AAVE protocol risks (though these are minimal)",
+                "Low exposure to price volatility"
+            ]
+        },
+        {
+            "name": "Zenith",
+            "risk_level": 3,
+            "steps": [
+                {
+                    "protocol": "AAVE",
+                    "action": "supply",
+                    "token": "SRC",
+                    "amount": 5.58,
+                    "expected_apy": 2.8
+                },
+                {
+                    "protocol": "AAVE",
+                    "action": "borrow",
+                    "token": "USDC",
+                    "amount": 22.32,
+                    "expected_apy": -3.5
+                },
+                {
+                    "protocol": "Ambient",
+                    "action": "add_liquidity",
+                    "token": "USDC",
+                    "amount": 22.32,
+                    "expected_apy": 5.7,
+                    "pair": "USDC-ETH"
+                }
+            ],
+            "explanation": "This balanced strategy creates moderate leverage to enhance yields while maintaining reasonable risk levels. We first supply SRC to AAVE as collateral, then borrow USDC against it at a 40% loan-to-value ratio. The borrowed USDC is deployed to provide liquidity on Ambient DEX, where it can generate higher returns than the borrowing cost. This creates a positive yield spread while diversifying your exposure across multiple DeFi protocols.",
+            "total_expected_apy": 5.0,
+            "risk_factors": [
+                "Collateral value fluctuations could impact health factor",
+                "Requires monitoring of borrowing position",
+                "Exposure to smart contract risks across multiple protocols",
+                "Changes in liquidity mining incentives may affect returns"
+            ]
+        },
+        {
+            "name": "Wildcard",
+            "risk_level": 5,
+            "steps": [
+                {
+                    "protocol": "AAVE",
+                    "action": "supply",
+                    "token": "SRC",
+                    "amount": 5.58,
+                    "expected_apy": 2.8
+                },
+                {
+                    "protocol": "AAVE",
+                    "action": "borrow",
+                    "token": "USDC",
+                    "amount": 5.0,
+                    "expected_apy": -3.5
+                },
+                {
+                    "protocol": "Quill",
+                    "action": "borrow_usdq",
+                    "token": "ETH",
+                    "amount": 0.005,
+                    "expected_apy": -15.0,
+                    "interest_rate": 15,
+                    "usdq_amount": 7.5
+                },
+                {
+                    "protocol": "Quill",
+                    "action": "provide_stability",
+                    "token": "USDQ",
+                    "amount": 7.5,
+                    "expected_apy": 30.0
+                },
+                {
+                    "protocol": "Ambient",
+                    "action": "add_liquidity",
+                    "token": "USDC",
+                    "amount": 5.0,
+                    "expected_apy": 8.5,
+                    "pair": "USDC-SRC"
+                }
+            ],
+            "explanation": "This aggressive strategy maximizes yield by creating multiple leveraged positions across protocols. We begin by supplying SRC to AAVE and borrowing USDC against it. We then use ETH as collateral in Quill to borrow USDQ, setting a higher interest rate to reduce redemption risk. The borrowed USDQ is provided to the Quill stability pool, which generates substantial returns from liquidations and interest. Meanwhile, the borrowed USDC from AAVE is deployed as liquidity on Ambient DEX. This multi-layered approach amplifies returns while diversifying across protocols and yield sources.",
+            "total_expected_apy": 22.8,
+            "risk_factors": [
+                "Higher liquidation risk due to multiple leverage positions",
+                "Requires active management and monitoring",
+                "Exposed to multiple protocol risks",
+                "Stability pool returns can fluctuate based on liquidation events",
+                "Market volatility may impact collateral values significantly"
+            ]
+        }
+    ],
+    "wallet": {
+        "balances": {
+            "ETH": 0.005359,
+            "USDC": 5.044992,
+            "SRC": 6.2
+        }
+    },
+    "market_data": {
+        "conditions": "stable"
+    }
+}

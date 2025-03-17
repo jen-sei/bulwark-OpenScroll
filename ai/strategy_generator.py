@@ -124,7 +124,7 @@ class StrategyGenerator:
         # Strategy descriptions and risk levels based on frontend
         strategy_descriptions = {
             "Anchor": {
-                "description": "Conservative strategy focused on steady growth over time. Should prioritize low-risk activities with minimal volatility.",
+                "description": "Conservative strategy focused on steady growth over time. Try to use only USDC on AAVE",
                 "risk_level": 1,
                 "apy_range": "2-5%"
             },
