@@ -113,12 +113,23 @@ class StrategyGenerator:
         
         Generate a {strategy_type} strategy ({strategy_info["description"]})
         This should be a risk level {strategy_info["risk_level"]} strategy with an expected APY of {strategy_info["target_apy"]}.
-        The strategy should be executable on AAVE.
+        
+        You can use both AAVE for lending/borrowing and Ambient DEX for swapping tokens or providing liquidity.
         
         Strategy Guidelines:
-        - Anchor: Conservative strategy focusing on USDC supply with minimal risk exposure
-        - Zenith: Balanced strategy involving USDC as collateral, borrowing ETH against it, and then supplying that ETH back 
-        - Wildcard: Aggressive strategy that maximizes yield through recursive leveraging with multiple cycles of borrowing and supplying
+        - Anchor: Conservative strategy focused on low-risk activities like USDC supply on AAVE or providing stable liquidity to low-volatility pairs on Ambient DEX.
+        - Zenith: Balanced strategy may involve USDC as collateral on AAVE, borrowing ETH, then either supplying back to AAVE or providing liquidity on Ambient DEX.
+        - Wildcard: Aggressive strategy that can use recursive leveraging with multiple cycles of borrowing and supplying, and/or concentrated liquidity positions on volatile pairs in Ambient.
+        
+        Available Protocols:
+        1. AAVE - For lending and borrowing
+        - Actions: "supply", "borrow", "withdraw", "repay"
+        - Example: {{ "protocol": "AAVE", "action": "supply", "token": "USDC", "amount": 1000, "expected_apy": 2.2 }}
+        
+        2. Ambient DEX - For token swaps and liquidity provision
+        - Actions: "swap", "add_liquidity", "remove_liquidity"
+        - Example swap: {{ "protocol": "Ambient", "action": "swap", "token": "USDC", "token_to": "ETH", "amount": 500, "expected_apy": 0 }}
+        - Example liquidity: {{ "protocol": "Ambient", "action": "add_liquidity", "pair": "ETH-USDC", "amount": 1000, "expected_apy": 5.0 }}
         
         Requirements:
         - Use all available tokens in the wallet (USDC, ETH, SRC)
@@ -136,7 +147,8 @@ class StrategyGenerator:
                     "action": "string",
                     "token": "string",
                     "amount": "number",
-                    "expected_apy": "number"
+                    "expected_apy": "number",
+                    "token_to": "string"  // Only required for Ambient swaps
                 }}
             ],
             "explanation": "string",
