@@ -17,6 +17,10 @@ class StrategyStep:
     token: str
     amount: Decimal
     expected_apy: Decimal
+    token_to: Optional[str] = None
+    pair: Optional[str] = None
+    interest_rate: Optional[int] = None
+    usdq_amount: Optional[Decimal] = None
 
 @dataclass
 class Strategy:
@@ -27,21 +31,11 @@ class Strategy:
     total_expected_apy: Decimal
     risk_factors: List[str]
 
-@dataclass
-class StrategyStep:
-    protocol: str
-    action: str
-    token: str
-    amount: Decimal
-    expected_apy: Decimal
-    token_to: Optional[str] = None
-    pair: Optional[str] = None
-
 class StrategyGenerator:
     def __init__(self):
         self.client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
         
-        # Token name mapping (from AAVE service to frontend display)
+        # Token name mapping (from service to frontend display)
         self.token_mapping = {
             "WETH": "ETH",   # Map WETH to ETH for user-friendly display
             "SCR": "SRC",    # In case the API returns SCR instead of SRC
@@ -74,6 +68,22 @@ class StrategyGenerator:
                         display_name = self.token_mapping.get(token, token)
                         mapped_rates["AAVE"][rate_type][display_name] = value
         
+        # Include Quill data if available
+        if "protocol" in market_data and market_data["protocol"] == "Quill":
+            mapped_rates["Quill"] = {
+                "collateral_factors": market_data.get("collateral_factors", {}),
+                "stability_pool_apy": market_data.get("stability_pool_apy", 5.0),
+                "interest_rates": market_data.get("interest_rates", {
+                    "min": 6.0,
+                    "max": 350.0,
+                    "recommended": {
+                        "low_risk": 6.0,
+                        "medium_risk": 10.0,
+                        "high_risk": 15.0
+                    }
+                })
+            }
+        
         # Create the final context
         context = {
             "wallet": {
@@ -84,7 +94,9 @@ class StrategyGenerator:
             "market": {
                 "apy_rates": mapped_rates or market_data.get("rates"),
                 "tvl": market_data.get("tvl"),
-                "conditions": market_data.get("conditions")
+                "conditions": market_data.get("conditions"),
+                "dex": market_data.get("dex", {}),
+                "quill": market_data.get("protocol") == "Quill" and market_data or None
             }
         }
         return json.dumps(context, indent=2)
@@ -99,17 +111,17 @@ class StrategyGenerator:
         # Strategy descriptions and risk levels based on frontend
         strategy_descriptions = {
             "Anchor": {
-                "description": "Conservative strategy focused on steady growth over time. Should use USDC primarily for minimal volatility.",
+                "description": "Conservative strategy focused on steady growth over time. Should prioritize low-risk activities with minimal volatility.",
                 "risk_level": 1,
                 "target_apy": "around 3.8%"
             },
             "Zenith": {
-                "description": "Balanced performance strategy that creates moderate leverage while maintaining reasonable health factor.",
+                "description": "Balanced performance strategy that creates moderate leverage while maintaining reasonable risk levels.",
                 "risk_level": 3,
                 "target_apy": "around 5.5%"
             },
             "Wildcard": {
-                "description": "Aggressive strategy for risk-takers that maximizes yield through recursive leveraging. Operates near minimum health factor.",
+                "description": "Aggressive strategy for risk-takers that maximizes yield through leveraging and higher-risk positions.",
                 "risk_level": 5,
                 "target_apy": "around 8.9%"
             }
@@ -124,12 +136,12 @@ class StrategyGenerator:
         Generate a {strategy_type} strategy ({strategy_info["description"]})
         This should be a risk level {strategy_info["risk_level"]} strategy with an expected APY of {strategy_info["target_apy"]}.
         
-        You can use both AAVE for lending/borrowing and Ambient DEX for swapping tokens or providing liquidity.
+        You can use AAVE for lending/borrowing, Ambient DEX for swapping tokens or providing liquidity, and Quill Finance for borrowing USDQ stablecoin against collateral.
         
         Strategy Guidelines:
-        - Anchor: Conservative strategy focused on low-risk activities like USDC supply on AAVE or providing stable liquidity to low-volatility pairs on Ambient DEX.
-        - Zenith: Balanced strategy may involve USDC as collateral on AAVE, borrowing ETH, then either supplying back to AAVE or providing liquidity on Ambient DEX.
-        - Wildcard: Aggressive strategy that can use recursive leveraging with multiple cycles of borrowing and supplying, and/or concentrated liquidity positions on volatile pairs in Ambient.
+        - Anchor: Conservative strategy focused on low-risk activities like USDC supply on AAVE, providing stable liquidity to low-volatility pairs on Ambient DEX, or maintaining well-collateralized positions on Quill.
+        - Zenith: Balanced strategy may involve borrowing from AAVE or Quill, then redeploying assets to generate additional yield, while maintaining reasonable health factors and collateral ratios.
+        - Wildcard: Aggressive strategy that can use recursive leveraging with multiple protocols, concentrated liquidity positions, or higher leverage positions on Quill with lower interest rates to boost yields.
         
         Available Protocols:
         1. AAVE - For lending and borrowing
@@ -141,11 +153,17 @@ class StrategyGenerator:
         - Example swap: {{ "protocol": "Ambient", "action": "swap", "token": "USDC", "token_to": "ETH", "amount": 500, "expected_apy": 0 }}
         - Example liquidity: {{ "protocol": "Ambient", "action": "add_liquidity", "pair": "ETH-USDC", "amount": 1000, "expected_apy": 5.0 }}
         
+        3. Quill Finance - For borrowing USDQ stablecoin against collateral
+        - Actions: "borrow_usdq", "repay_usdq", "provide_stability"
+        - Example borrow: {{ "protocol": "Quill", "action": "borrow_usdq", "token": "ETH", "amount": 0.5, "usdq_amount": 500, "interest_rate": 10, "expected_apy": -10.0 }}
+        - Example stability: {{ "protocol": "Quill", "action": "provide_stability", "token": "USDQ", "amount": 500, "expected_apy": 5.0 }}
+        
         Requirements:
-        - Use all available tokens in the wallet (USDC, ETH, SRC)
+        - Use all available tokens in the wallet (USDC, ETH, SRC, etc.)
         - Provide clear step-by-step actions
         - Include realistic APY estimates
         - Include comprehensive risk assessment
+        - When using Quill, set appropriate interest rates (6% to 350%, with higher rates reducing redemption risk)
         
         Return the strategy in the following JSON format:
         {{
@@ -158,7 +176,9 @@ class StrategyGenerator:
                     "token": "string",
                     "amount": "number",
                     "expected_apy": "number",
-                    "token_to": "string"  // Only required for Ambient swaps
+                    "token_to": "string",  // Only required for Ambient swaps
+                    "interest_rate": "number",  // Only required for Quill borrowing
+                    "usdq_amount": "number"  // Only required for Quill borrowing
                 }}
             ],
             "explanation": "string",
@@ -265,7 +285,8 @@ class StrategyGenerator:
                         action=step["action"],
                         token=token,  # Using first token from pair
                         amount=Decimal(amount_str),
-                        expected_apy=Decimal(apy_str)
+                        expected_apy=Decimal(apy_str),
+                        pair=pair
                     ))
                 elif step["protocol"] == "Ambient" and step["action"] == "swap":
                     # Map the display token names (ETH) back to blockchain names (WETH)
@@ -278,7 +299,32 @@ class StrategyGenerator:
                         action=step["action"],
                         token=blockchain_token,  # Use the blockchain token name
                         amount=Decimal(amount_str),
-                        expected_apy=Decimal(apy_str)
+                        expected_apy=Decimal(apy_str),
+                        token_to=token_to
+                    ))
+                elif step["protocol"] == "Quill":
+                    # Handle Quill-specific actions
+                    token = step["token"]
+                    blockchain_token = self.reverse_token_mapping.get(token, token)
+                    
+                    # Convert additional Quill-specific fields
+                    interest_rate = step.get("interest_rate")
+                    usdq_amount = step.get("usdq_amount")
+                    
+                    if usdq_amount:
+                        usdq_amount_str = str(usdq_amount).replace(',', '')
+                        usdq_amount_decimal = Decimal(usdq_amount_str)
+                    else:
+                        usdq_amount_decimal = None
+                    
+                    steps.append(StrategyStep(
+                        protocol=step["protocol"],
+                        action=step["action"],
+                        token=blockchain_token,
+                        amount=Decimal(amount_str),
+                        expected_apy=Decimal(apy_str),
+                        interest_rate=interest_rate,
+                        usdq_amount=usdq_amount_decimal
                     ))
                 else:
                     # Regular AAVE steps (supply, borrow, etc.)
@@ -344,7 +390,11 @@ class StrategyGenerator:
                             "action": step.action,
                             "token": step.token,
                             "amount": float(step.amount),
-                            "expected_apy": float(step.expected_apy)
+                            "expected_apy": float(step.expected_apy),
+                            **({"token_to": step.token_to} if step.token_to else {}),
+                            **({"pair": step.pair} if step.pair else {}),
+                            **({"interest_rate": step.interest_rate} if step.interest_rate is not None else {}),
+                            **({"usdq_amount": float(step.usdq_amount)} if step.usdq_amount is not None else {})
                         }
                         for step in strategy.steps
                     ],
