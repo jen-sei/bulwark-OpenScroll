@@ -1,6 +1,6 @@
 # ai/services/abis/quill_borrower_operations_abi.py
 
-BORROWER_OPERATIONS_ABI = [
+QUILL_BORROWER_OPERATIONS_ABI = [
     {
         "inputs": [
             {"internalType": "address", "name": "_troveManagerAddress", "type": "address"},

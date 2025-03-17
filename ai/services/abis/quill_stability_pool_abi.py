@@ -1,6 +1,6 @@
 # ai/services/abis/quill_stability_pool_abi.py
 
-STABILITY_POOL_ABI = [
+QUILL_STABILITY_POOL_ABI = [
     {
         "inputs": [
             {"internalType": "address", "name": "_borrowerOperationsAddress", "type": "address"},
