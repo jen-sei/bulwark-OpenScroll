@@ -27,6 +27,16 @@ class Strategy:
     total_expected_apy: Decimal
     risk_factors: List[str]
 
+@dataclass
+class StrategyStep:
+    protocol: str
+    action: str
+    token: str
+    amount: Decimal
+    expected_apy: Decimal
+    token_to: Optional[str] = None
+    pair: Optional[str] = None
+
 class StrategyGenerator:
     def __init__(self):
         self.client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
@@ -245,24 +255,50 @@ class StrategyGenerator:
                 amount_str = str(step["amount"]).replace(',', '')
                 apy_str = str(step["expected_apy"]).replace(',', '')
                 
-                # Map the display token names (ETH) back to blockchain names (WETH)
-                token = step["token"]
-                blockchain_token = self.reverse_token_mapping.get(token, token)
-                
-                steps.append(StrategyStep(
-                    protocol=step["protocol"],
-                    action=step["action"],
-                    token=blockchain_token,  # Use the blockchain token name
-                    amount=Decimal(amount_str),
-                    expected_apy=Decimal(apy_str)
-                ))
+                # Handle different step types based on protocol and action
+                if step["protocol"] == "Ambient" and step["action"] == "add_liquidity":
+                    # For Ambient liquidity steps, use the pair field
+                    pair = step.get("pair", "")
+                    token = pair.split('-')[0] if pair else "UNKNOWN"
+                    steps.append(StrategyStep(
+                        protocol=step["protocol"],
+                        action=step["action"],
+                        token=token,  # Using first token from pair
+                        amount=Decimal(amount_str),
+                        expected_apy=Decimal(apy_str)
+                    ))
+                elif step["protocol"] == "Ambient" and step["action"] == "swap":
+                    # Map the display token names (ETH) back to blockchain names (WETH)
+                    token = step["token"]
+                    token_to = step.get("token_to", "")
+                    blockchain_token = self.reverse_token_mapping.get(token, token)
+                    
+                    steps.append(StrategyStep(
+                        protocol=step["protocol"],
+                        action=step["action"],
+                        token=blockchain_token,  # Use the blockchain token name
+                        amount=Decimal(amount_str),
+                        expected_apy=Decimal(apy_str)
+                    ))
+                else:
+                    # Regular AAVE steps (supply, borrow, etc.)
+                    token = step["token"]
+                    blockchain_token = self.reverse_token_mapping.get(token, token)
+                    
+                    steps.append(StrategyStep(
+                        protocol=step["protocol"],
+                        action=step["action"],
+                        token=blockchain_token,  # Use the blockchain token name
+                        amount=Decimal(amount_str),
+                        expected_apy=Decimal(apy_str)
+                    ))
             except Exception as e:
                 print(f"Warning: Error parsing step {step}: {e}")
                 # Fallback to default values if conversion fails
                 steps.append(StrategyStep(
-                    protocol=step["protocol"],
-                    action=step["action"],
-                    token=step["token"],
+                    protocol=step.get("protocol", "UNKNOWN"),
+                    action=step.get("action", "UNKNOWN"),
+                    token=step.get("token", step.get("pair", "UNKNOWN").split('-')[0] if step.get("pair") else "UNKNOWN"),
                     amount=Decimal("0"),
                     expected_apy=Decimal("0")
                 ))
